@@ -20,7 +20,7 @@ Eine lokale Home-Assistant-Integration zur Überwachung des Batteriestatus ausge
 - `unknown` / `unavailable` werden als nicht erreichbar gemeldet
 - Mehrere Batterie-Entitäten eines Geräts werden zu einem Gerät zusammengefasst
 - Ein verfügbarer Prozentwert wird gegenüber einem binären Batteriestatus bevorzugt
-- Pro HA-Battery-Status-Monitor-Konfiguration werden fünf Sensoren erstellt:
+- Pro HA Battery Status Monitor-Konfiguration werden fünf Sensoren erstellt:
   - Gesamt
   - Normal
   - Schwach
@@ -60,7 +60,7 @@ Beispiel:
 
 ```yaml
 type: custom:battery-monitor-card
-entity: sensor.battery_monitor_gesamt
+entity: sensor.ha_battery_status_monitor_gesamt
 show_normal: false
 show_weak: true
 show_critical: true
@@ -79,13 +79,13 @@ Das Repository bleibt während der V1-Tests privat.
 Kopiere folgenden Ordner in dein Home-Assistant-Konfigurationsverzeichnis:
 
 ```text
-/config/custom_components/battery_monitor/
+/config/custom_components/ha_battery_status_monitor/
 ```
 
 Der Ordner muss die Integrationsdateien aus
 
 ```text
-custom_components/battery_monitor/
+custom_components/ha_battery_status_monitor/
 ```
 
 enthalten.
@@ -119,7 +119,7 @@ Die endgültige HACS-Struktur wird vor der ersten öffentlichen Veröffentlichun
 ## Repository-Struktur
 
 ```text
-custom_components/battery_monitor/
+custom_components/ha_battery_status_monitor/
 ├── __init__.py
 ├── config_flow.py
 ├── const.py
