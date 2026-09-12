@@ -2,13 +2,13 @@
   "config": {
     "step": {
       "user": {
-        "title": "Geräte auswählen",
+        "title": "Batteriegeräte auswählen",
         "description": "Wähle die Geräte aus, deren Batteriestatus überwacht werden soll.",
         "data": {
-          "device_ids": "Geräte"
+          "device_ids": "Batteriegeräte"
         },
         "data_description": {
-          "device_ids": "Du kannst mehrere Geräte auswählen. Battery Monitor erkennt unterstützte Batterie-Entitäten der ausgewählten Geräte automatisch."
+          "device_ids": "Es werden nur Geräte mit mindestens einer unterstützten Batterie-Entität angezeigt. Du kannst mehrere Geräte auswählen."
         }
       },
       "thresholds": {
@@ -21,19 +21,20 @@
       }
     },
     "error": {
-      "invalid_thresholds": "Die kritische Schwelle muss kleiner als die Warnschwelle sein."
+      "invalid_thresholds": "Die kritische Schwelle muss kleiner als die Warnschwelle sein.",
+      "no_devices": "Wähle mindestens ein Batteriegerät aus."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Geräte auswählen",
+        "title": "Batteriegeräte auswählen",
         "description": "Ändere die Geräte, deren Batteriestatus überwacht werden soll.",
         "data": {
-          "device_ids": "Geräte"
+          "device_ids": "Batteriegeräte"
         },
         "data_description": {
-          "device_ids": "Du kannst mehrere Geräte auswählen."
+          "device_ids": "Es werden nur Geräte mit mindestens einer unterstützten Batterie-Entität angezeigt."
         }
       },
       "thresholds": {
@@ -46,7 +47,8 @@
       }
     },
     "error": {
-      "invalid_thresholds": "Die kritische Schwelle muss kleiner als die Warnschwelle sein."
+      "invalid_thresholds": "Die kritische Schwelle muss kleiner als die Warnschwelle sein.",
+      "no_devices": "Wähle mindestens ein Batteriegerät aus."
     }
   }
 }
