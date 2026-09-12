@@ -112,6 +112,48 @@
         this._keyHandler = null;
       }
     };
+
+    // The card itself already has pointer/click handlers. HA dashboard wrappers
+    // can still interfere with those events. Catch the status button at the
+    // document capture phase and stop the event before it reaches the card.
+    if (!window.__batteryMonitorPopupEventFixInstalled) {
+      window.__batteryMonitorPopupEventFixInstalled = true;
+
+      const handleStatusInteraction = (event) => {
+        const path = typeof event.composedPath === "function" ? event.composedPath() : [];
+        const button = path.find(
+          (node) =>
+            node instanceof HTMLElement &&
+            node.matches?.("button.battery-status-count[data-status]"),
+        );
+
+        if (!button) return;
+
+        const card = path.find(
+          (node) => node instanceof HTMLElement && node.localName === "battery-monitor-card",
+        );
+
+        if (!card?._config?.popup_enabled) return;
+
+        const status = button.dataset.status;
+        if (!status) return;
+
+        // Open once on pointerdown. Suppress pointerup/click so the dashboard
+        // cannot immediately re-handle the same interaction and cause flicker.
+        if (event.type === "pointerdown") {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          card._openPopup(status);
+        } else {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      };
+
+      document.addEventListener("pointerdown", handleStatusInteraction, true);
+      document.addEventListener("pointerup", handleStatusInteraction, true);
+      document.addEventListener("click", handleStatusInteraction, true);
+    }
   };
 
   install();
