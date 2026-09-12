@@ -1,0 +1,94 @@
+from __future__ import annotations
+
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
+
+from homeassistant.components.sensor import SensorEntity
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import EntityCategory
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+from .const import (
+    DOMAIN,
+    STATUS_CRITICAL,
+    STATUS_NORMAL,
+    STATUS_UNAVAILABLE,
+    STATUS_WEAK,
+)
+from .coordinator import BatteryMonitorCoordinator
+
+
+@dataclass(frozen=True, slots=True)
+class BatterySensorDescription:
+    key: str
+    name: str
+    icon: str
+    status: str | None = None
+
+
+DESCRIPTIONS = (
+    BatterySensorDescription("total", "Gesamt", "mdi:battery-medium"),
+    BatterySensorDescription("normal", "Normal", "mdi:battery-check", STATUS_NORMAL),
+    BatterySensorDescription("weak", "Schwach", "mdi:battery-low", STATUS_WEAK),
+    BatterySensorDescription("critical", "Kritisch", "mdi:battery-alert", STATUS_CRITICAL),
+    BatterySensorDescription("unavailable", "Nicht erreichbar", "mdi:battery-off", STATUS_UNAVAILABLE),
+)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: Callable
+) -> None:
+    coordinator: BatteryMonitorCoordinator = hass.data[DOMAIN][entry.entry_id]
+    async_add_entities(
+        BatteryCountSensor(coordinator, entry, description) for description in DESCRIPTIONS
+    )
+
+
+class BatteryCountSensor(CoordinatorEntity[BatteryMonitorCoordinator], SensorEntity):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_native_unit_of_measurement = "Geräte"
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: BatteryMonitorCoordinator,
+        entry: ConfigEntry,
+        description: BatterySensorDescription,
+    ) -> None:
+        super().__init__(coordinator)
+        self.entity_description = description
+        self._entry = entry
+        self._attr_unique_id = f"{entry.entry_id}_{description.key}"
+        self._attr_name = description.name
+        self._attr_icon = description.icon
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name=entry.title,
+            manufacturer="HA Battery Monitor",
+            model="Battery Monitor",
+        )
+
+    @property
+    def native_value(self) -> int:
+        if self.entity_description.status is None:
+            return int(self.coordinator.data.get("total", 0))
+        return int(self.coordinator.data.get("counts", {}).get(self.entity_description.status, 0))
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        data = self.coordinator.data
+        if self.entity_description.status is None:
+            items = data.get("items", [])
+        else:
+            items = [
+                item for item in data.get("items", [])
+                if item["status"] == self.entity_description.status
+            ]
+        return {
+            "devices": items,
+            "warning_threshold": data.get("warning_threshold"),
+            "critical_threshold": data.get("critical_threshold"),
+        }
