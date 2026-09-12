@@ -3,7 +3,7 @@ class BatteryMonitorCard extends HTMLElement {
   static getStubConfig() { return { entity: "sensor.battery_monitor_gesamt" }; }
 
   setConfig(config) {
-    if (!config || !config.entity) throw new Error("Battery Monitor Card benötigt eine entity.");
+    if (!config || !config.entity) throw new Error("HA Battery Status Monitor Card benötigt eine entity.");
     this._config = { show_normal: false, show_weak: true, show_critical: true, show_unavailable: true, show_values: true, ...config };
     this._render();
   }
@@ -14,7 +14,7 @@ class BatteryMonitorCard extends HTMLElement {
     if (!this._hass || !this._config) return;
     const state = this._hass.states[this._config.entity];
     if (!state) {
-      this.innerHTML = `<ha-card><div class="content">Battery Monitor Entity nicht gefunden.</div></ha-card>`;
+      this.innerHTML = `<ha-card><div class="content">HA Battery Status Monitor Entity nicht gefunden.</div></ha-card>`;
       return;
     }
     const attrs = state.attributes || {};
@@ -35,7 +35,7 @@ class BatteryMonitorCard extends HTMLElement {
       </section>`;
     }).join("");
     this.innerHTML = `<ha-card><style>${this._styles()}</style><div class="content">
-      <div class="header"><div class="title"><ha-icon icon="mdi:battery-medium"></ha-icon><span>Batterien</span></div></div>
+      <div class="header"><div class="title"><ha-icon icon="mdi:battery-medium"></ha-icon><span>HA Battery Status Monitor</span></div></div>
       <div class="counts">
         ${this._count("normal", "Normal", "mdi:battery-check", counts.normal || 0)}
         ${this._count("weak", "Schwach", "mdi:battery-low", counts.weak || 0)}
@@ -81,4 +81,4 @@ class BatteryMonitorCardEditor extends HTMLElement {
 if (!customElements.get("battery-monitor-card")) customElements.define("battery-monitor-card", BatteryMonitorCard);
 if (!customElements.get("battery-monitor-card-editor")) customElements.define("battery-monitor-card-editor", BatteryMonitorCardEditor);
 window.customCards = window.customCards || [];
-window.customCards.push({ type: "battery-monitor-card", name: "Battery Monitor Card", description: "Theme-aware Battery Monitor card", preview: true });
+window.customCards.push({ type: "battery-monitor-card", name: "HA Battery Status Monitor Card", description: "Theme-aware HA Battery Status Monitor card", preview: true });
