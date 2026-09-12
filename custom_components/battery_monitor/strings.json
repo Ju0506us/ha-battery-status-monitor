@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Select battery devices",
+        "title": "HA Battery Status Monitor",
         "description": "Select the devices whose battery status should be monitored.",
         "data": {
           "device_ids": "Battery devices"
@@ -28,7 +28,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "Select battery devices",
+        "title": "HA Battery Status Monitor",
         "description": "Change the devices whose battery status should be monitored.",
         "data": {
           "device_ids": "Battery devices"
