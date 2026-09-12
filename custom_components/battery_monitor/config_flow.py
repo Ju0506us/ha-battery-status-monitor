@@ -75,7 +75,7 @@ def _device_schema(hass, default: list[str] | None = None) -> vol.Schema:
 
 
 def _threshold_schema(warning_default: int, critical_default: int) -> vol.Schema:
-    """Build threshold selectors with a visible numeric value and percent unit."""
+    """Build threshold sliders with a visible current value and percent unit."""
     return vol.Schema(
         {
             vol.Required(
@@ -141,7 +141,7 @@ class BatteryMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 )
 
             return self.async_create_entry(
-                title="Battery Monitor",
+                title="HA Battery Status Monitor",
                 data={
                     CONF_DEVICE_IDS: self._device_ids,
                     CONF_WARNING_THRESHOLD: warning,
