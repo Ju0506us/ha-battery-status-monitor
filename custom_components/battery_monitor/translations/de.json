@@ -2,27 +2,51 @@
   "config": {
     "step": {
       "user": {
-        "title": "Battery Monitor",
-        "description": "Wähle die Geräte aus, deren Batterie überwacht werden soll.",
+        "title": "Geräte auswählen",
+        "description": "Wähle die Geräte aus, deren Batteriestatus überwacht werden soll.",
         "data": {
-          "device_ids": "Geräte",
-          "warning_threshold": "Warnschwelle (%)",
-          "critical_threshold": "Kritische Schwelle (%)"
+          "device_ids": "Geräte"
+        },
+        "data_description": {
+          "device_ids": "Du kannst mehrere Geräte auswählen. Battery Monitor erkennt unterstützte Batterie-Entitäten der ausgewählten Geräte automatisch."
+        }
+      },
+      "thresholds": {
+        "title": "Batterieschwellenwerte",
+        "description": "Passe die Warn- und kritische Schwelle an. Der aktuelle Wert wird rechts neben dem jeweiligen Schieberegler angezeigt.",
+        "data": {
+          "warning_threshold": "Warnschwelle",
+          "critical_threshold": "Kritische Schwelle"
         }
       }
+    },
+    "error": {
+      "invalid_thresholds": "Die kritische Schwelle muss kleiner als die Warnschwelle sein."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Battery Monitor Einstellungen",
-        "description": "Geräte und Schwellenwerte ändern.",
+        "title": "Geräte auswählen",
+        "description": "Ändere die Geräte, deren Batteriestatus überwacht werden soll.",
         "data": {
-          "device_ids": "Geräte",
-          "warning_threshold": "Warnschwelle (%)",
-          "critical_threshold": "Kritische Schwelle (%)"
+          "device_ids": "Geräte"
+        },
+        "data_description": {
+          "device_ids": "Du kannst mehrere Geräte auswählen."
+        }
+      },
+      "thresholds": {
+        "title": "Batterieschwellenwerte",
+        "description": "Passe die Warn- und kritische Schwelle an. Der aktuelle Wert wird rechts neben dem jeweiligen Schieberegler angezeigt.",
+        "data": {
+          "warning_threshold": "Warnschwelle",
+          "critical_threshold": "Kritische Schwelle"
         }
       }
+    },
+    "error": {
+      "invalid_thresholds": "Die kritische Schwelle muss kleiner als die Warnschwelle sein."
     }
   }
 }
