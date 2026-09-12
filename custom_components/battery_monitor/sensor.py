@@ -11,13 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import (
-    DOMAIN,
-    STATUS_CRITICAL,
-    STATUS_NORMAL,
-    STATUS_UNAVAILABLE,
-    STATUS_WEAK,
-)
+from .const import DOMAIN, STATUS_CRITICAL, STATUS_NORMAL, STATUS_UNAVAILABLE, STATUS_WEAK
 from .coordinator import BatteryMonitorCoordinator
 
 
@@ -38,13 +32,9 @@ DESCRIPTIONS = (
 )
 
 
-async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: Callable
-) -> None:
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: Callable) -> None:
     coordinator: BatteryMonitorCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(
-        BatteryCountSensor(coordinator, entry, description) for description in DESCRIPTIONS
-    )
+    async_add_entities(BatteryCountSensor(coordinator, entry, description) for description in DESCRIPTIONS)
 
 
 class BatteryCountSensor(CoordinatorEntity[BatteryMonitorCoordinator], SensorEntity):
@@ -52,15 +42,9 @@ class BatteryCountSensor(CoordinatorEntity[BatteryMonitorCoordinator], SensorEnt
     _attr_native_unit_of_measurement = "Geräte"
     _attr_has_entity_name = True
 
-    def __init__(
-        self,
-        coordinator: BatteryMonitorCoordinator,
-        entry: ConfigEntry,
-        description: BatterySensorDescription,
-    ) -> None:
+    def __init__(self, coordinator: BatteryMonitorCoordinator, entry: ConfigEntry, description: BatterySensorDescription) -> None:
         super().__init__(coordinator)
         self.entity_description = description
-        self._entry = entry
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
         self._attr_name = description.name
         self._attr_icon = description.icon
@@ -80,15 +64,13 @@ class BatteryCountSensor(CoordinatorEntity[BatteryMonitorCoordinator], SensorEnt
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         data = self.coordinator.data
-        if self.entity_description.status is None:
-            items = data.get("items", [])
-        else:
-            items = [
-                item for item in data.get("items", [])
-                if item["status"] == self.entity_description.status
-            ]
+        items = data.get("items", [])
+        if self.entity_description.status is not None:
+            items = [item for item in items if item["status"] == self.entity_description.status]
         return {
             "devices": items,
+            "counts": data.get("counts", {}),
+            "total": data.get("total", 0),
             "warning_threshold": data.get("warning_threshold"),
             "critical_threshold": data.get("critical_threshold"),
         }
