@@ -2,13 +2,13 @@
   "config": {
     "step": {
       "user": {
-        "title": "Select devices",
+        "title": "Select battery devices",
         "description": "Select the devices whose battery status should be monitored.",
         "data": {
-          "device_ids": "Devices"
+          "device_ids": "Battery devices"
         },
         "data_description": {
-          "device_ids": "You can select multiple devices. Battery Monitor automatically detects supported battery entities for the selected devices."
+          "device_ids": "Only devices with at least one supported battery entity are shown. You can select multiple devices."
         }
       },
       "thresholds": {
@@ -21,19 +21,20 @@
       }
     },
     "error": {
-      "invalid_thresholds": "The critical threshold must be lower than the warning threshold."
+      "invalid_thresholds": "The critical threshold must be lower than the warning threshold.",
+      "no_devices": "Select at least one battery device."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Select devices",
+        "title": "Select battery devices",
         "description": "Change the devices whose battery status should be monitored.",
         "data": {
-          "device_ids": "Devices"
+          "device_ids": "Battery devices"
         },
         "data_description": {
-          "device_ids": "You can select multiple devices."
+          "device_ids": "Only devices with at least one supported battery entity are shown."
         }
       },
       "thresholds": {
@@ -46,7 +47,8 @@
       }
     },
     "error": {
-      "invalid_thresholds": "The critical threshold must be lower than the warning threshold."
+      "invalid_thresholds": "The critical threshold must be lower than the warning threshold.",
+      "no_devices": "Select at least one battery device."
     }
   }
 }
