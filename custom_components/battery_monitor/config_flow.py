@@ -5,7 +5,13 @@ from typing import Any
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import OptionsFlowWithReload
-from homeassistant.helpers import selector
+from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.selector import (
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+)
 
 from .const import (
     CONF_CRITICAL_THRESHOLD,
@@ -17,51 +23,65 @@ from .const import (
 )
 
 
-def _device_schema(default: list[str] | None = None) -> vol.Schema:
-    if default is None:
-        key = vol.Required(CONF_DEVICE_IDS)
-    else:
-        key = vol.Required(CONF_DEVICE_IDS, default=default)
+def _get_battery_devices(hass) -> list[dict[str, str]]:
+    """Return only devices that have at least one battery entity."""
+    entity_registry = er.async_get(hass)
+    device_registry = dr.async_get(hass)
+    device_ids: set[str] = set()
+
+    for entry in entity_registry.entities.values():
+        if entry.disabled_by or entry.device_id is None:
+            continue
+        if entry.domain not in ("sensor", "binary_sensor"):
+            continue
+        if entry.device_class == "battery" or entry.original_device_class == "battery":
+            device_ids.add(entry.device_id)
+
+    options: list[dict[str, str]] = []
+    for device_id in device_ids:
+        device = device_registry.async_get(device_id)
+        if device is None:
+            continue
+        options.append(
+            {
+                "value": device_id,
+                "label": device.name_by_user or device.name or device_id,
+            }
+        )
+
+    return sorted(options, key=lambda item: item["label"].lower())
+
+
+def _device_schema(hass, default: list[str] | None = None) -> vol.Schema:
+    """Build a checkbox list containing only battery-capable devices."""
+    options = _get_battery_devices(hass)
+    valid_ids = {option["value"] for option in options}
+    current = [device_id for device_id in (default or []) if device_id in valid_ids]
 
     return vol.Schema(
         {
-            key: selector.DeviceSelector(
-                selector.DeviceSelectorConfig(multiple=True)
+            vol.Required(CONF_DEVICE_IDS, default=current): SelectSelector(
+                SelectSelectorConfig(
+                    options=options,
+                    multiple=True,
+                    mode=SelectSelectorMode.LIST,
+                )
             )
         }
     )
 
 
-def _threshold_schema(
-    warning_default: int,
-    critical_default: int,
-) -> vol.Schema:
+def _threshold_schema(warning_default: int, critical_default: int) -> vol.Schema:
     return vol.Schema(
         {
             vol.Required(
                 CONF_WARNING_THRESHOLD,
                 default=warning_default,
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=1,
-                    max=100,
-                    step=1,
-                    mode=selector.NumberSelectorMode.SLIDER,
-                    unit_of_measurement="%",
-                )
-            ),
+            ): vol.All(vol.Coerce(int), vol.Range(min=1, max=100)),
             vol.Required(
                 CONF_CRITICAL_THRESHOLD,
                 default=critical_default,
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(
-                    min=0,
-                    max=99,
-                    step=1,
-                    mode=selector.NumberSelectorMode.SLIDER,
-                    unit_of_measurement="%",
-                )
-            ),
+            ): vol.All(vol.Coerce(int), vol.Range(min=0, max=99)),
         }
     )
 
@@ -75,11 +95,17 @@ class BatteryMonitorConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: dict[str, Any] | None = None):
         if user_input is not None:
             self._device_ids = list(user_input[CONF_DEVICE_IDS])
+            if not self._device_ids:
+                return self.async_show_form(
+                    step_id="user",
+                    data_schema=_device_schema(self.hass),
+                    errors={"base": "no_devices"},
+                )
             return await self.async_step_thresholds()
 
         return self.async_show_form(
             step_id="user",
-            data_schema=_device_schema(),
+            data_schema=_device_schema(self.hass),
         )
 
     async def async_step_thresholds(self, user_input: dict[str, Any] | None = None):
@@ -121,10 +147,6 @@ class BatteryMonitorOptionsFlow(OptionsFlowWithReload):
         self._device_ids: list[str] = []
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None):
-        if user_input is not None:
-            self._device_ids = list(user_input[CONF_DEVICE_IDS])
-            return await self.async_step_thresholds()
-
         default_devices = list(
             self.config_entry.options.get(
                 CONF_DEVICE_IDS,
@@ -132,9 +154,19 @@ class BatteryMonitorOptionsFlow(OptionsFlowWithReload):
             )
         )
 
+        if user_input is not None:
+            self._device_ids = list(user_input[CONF_DEVICE_IDS])
+            if not self._device_ids:
+                return self.async_show_form(
+                    step_id="init",
+                    data_schema=_device_schema(self.hass, default_devices),
+                    errors={"base": "no_devices"},
+                )
+            return await self.async_step_thresholds()
+
         return self.async_show_form(
             step_id="init",
-            data_schema=_device_schema(default_devices),
+            data_schema=_device_schema(self.hass, default_devices),
         )
 
     async def async_step_thresholds(self, user_input: dict[str, Any] | None = None):
