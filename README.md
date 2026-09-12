@@ -56,19 +56,50 @@ The project includes the HA Battery Status Monitor Lovelace card in `www/battery
 
 The card is designed to use Home Assistant theme variables instead of hard-coded colors. It therefore adapts to light mode, dark mode and custom Home Assistant themes and is designed for desktop, mobile and the Home Assistant Companion App.
 
+### Interaction
+
+The four status summaries are shown at the top:
+
+- Normal
+- Weak
+- Critical
+- Not reachable
+
+Each status summary is clickable. Clicking a category shows the complete device list for that status directly below the summaries. Clicking the active category again, or using **Summary**, returns to the summary view.
+
+### Summary mode
+
+The default view can be set to **Summary**. In this mode the card shows the first **2 or 3 devices per selected category** below the status summaries.
+
+The graphical card editor allows you to configure:
+
+- the default view on startup: Summary, Normal, Weak, Critical or Not reachable
+- whether 2 or 3 devices per category are shown in Summary mode
+- which categories appear in Summary mode: all or only selected categories
+
 Example:
 
 ```yaml
 type: custom:battery-monitor-card
 entity: sensor.ha_battery_status_monitor_gesamt
-show_normal: false
-show_weak: true
-show_critical: true
-show_unavailable: true
-show_values: true
+show_header: true
+show_summary: true
+default_view: summary
+summary_limit: 2
+summary_categories:
+  - normal
+  - weak
+  - critical
+  - unavailable
 ```
 
-The card shows the status counts at the top and can list problematic devices below them. Normal devices can be hidden by default.
+### Lovelace resource
+
+```text
+/local/battery-monitor-card.js
+```
+
+Register the resource as a JavaScript module (`module`).
 
 ## Installation during development
 
@@ -161,6 +192,9 @@ Real-device testing is required before a stable release. Test cases include:
 - Home Assistant restart/reload behavior
 - light and dark themes
 - mobile and desktop layouts
+- interaction with the status summaries
+- summary mode with 2 and 3 devices per category
+- different default views
 
 ## AI-assisted development disclosure
 
