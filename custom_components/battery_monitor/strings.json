@@ -2,27 +2,51 @@
   "config": {
     "step": {
       "user": {
-        "title": "Battery Monitor",
-        "description": "Wähle die Geräte aus, deren Batterie überwacht werden soll.",
+        "title": "Select devices",
+        "description": "Select the devices whose battery status should be monitored.",
         "data": {
-          "device_ids": "Geräte",
-          "warning_threshold": "Warnschwelle (%)",
-          "critical_threshold": "Kritische Schwelle (%)"
+          "device_ids": "Devices"
+        },
+        "data_description": {
+          "device_ids": "You can select multiple devices. Battery Monitor automatically detects supported battery entities for the selected devices."
+        }
+      },
+      "thresholds": {
+        "title": "Battery thresholds",
+        "description": "Adjust the warning and critical thresholds. The current value is shown next to each slider.",
+        "data": {
+          "warning_threshold": "Warning threshold",
+          "critical_threshold": "Critical threshold"
         }
       }
+    },
+    "error": {
+      "invalid_thresholds": "The critical threshold must be lower than the warning threshold."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Battery Monitor Einstellungen",
-        "description": "Geräte und Schwellenwerte ändern.",
+        "title": "Select devices",
+        "description": "Change the devices whose battery status should be monitored.",
         "data": {
-          "device_ids": "Geräte",
-          "warning_threshold": "Warnschwelle (%)",
-          "critical_threshold": "Kritische Schwelle (%)"
+          "device_ids": "Devices"
+        },
+        "data_description": {
+          "device_ids": "You can select multiple devices."
+        }
+      },
+      "thresholds": {
+        "title": "Battery thresholds",
+        "description": "Adjust the warning and critical thresholds. The current value is shown next to each slider.",
+        "data": {
+          "warning_threshold": "Warning threshold",
+          "critical_threshold": "Critical threshold"
         }
       }
+    },
+    "error": {
+      "invalid_thresholds": "The critical threshold must be lower than the warning threshold."
     }
   }
 }
