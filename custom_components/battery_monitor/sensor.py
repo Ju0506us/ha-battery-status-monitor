@@ -21,61 +21,31 @@ class BatterySensorDescription(SensorEntityDescription):
 
 DESCRIPTIONS = (
     BatterySensorDescription(key="total", name="Gesamt", icon="mdi:battery-medium"),
-    BatterySensorDescription(
-        key="normal",
-        name="Normal",
-        icon="mdi:battery-check",
-        status=STATUS_NORMAL,
-    ),
-    BatterySensorDescription(
-        key="weak",
-        name="Schwach",
-        icon="mdi:battery-low",
-        status=STATUS_WEAK,
-    ),
-    BatterySensorDescription(
-        key="critical",
-        name="Kritisch",
-        icon="mdi:battery-alert",
-        status=STATUS_CRITICAL,
-    ),
-    BatterySensorDescription(
-        key="unavailable",
-        name="Nicht erreichbar",
-        icon="mdi:battery-off",
-        status=STATUS_UNAVAILABLE,
-    ),
+    BatterySensorDescription(key="normal", name="Normal", icon="mdi:battery-check", status=STATUS_NORMAL),
+    BatterySensorDescription(key="weak", name="Schwach", icon="mdi:battery-low", status=STATUS_WEAK),
+    BatterySensorDescription(key="critical", name="Kritisch", icon="mdi:battery-alert", status=STATUS_CRITICAL),
+    BatterySensorDescription(key="unavailable", name="Nicht erreichbar", icon="mdi:battery-off", status=STATUS_UNAVAILABLE),
 )
 
 
-async def async_setup_entry(
-    hass: HomeAssistant, entry: ConfigEntry, async_add_entities: Callable
-) -> None:
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_entities: Callable) -> None:
     coordinator: BatteryMonitorCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(
-        BatteryCountSensor(coordinator, entry, description)
-        for description in DESCRIPTIONS
-    )
+    async_add_entities(BatteryCountSensor(coordinator, entry, description) for description in DESCRIPTIONS)
 
 
 class BatteryCountSensor(CoordinatorEntity[BatteryMonitorCoordinator], SensorEntity):
     _attr_native_unit_of_measurement = "Geräte"
     _attr_has_entity_name = True
 
-    def __init__(
-        self,
-        coordinator: BatteryMonitorCoordinator,
-        entry: ConfigEntry,
-        description: BatterySensorDescription,
-    ) -> None:
+    def __init__(self, coordinator: BatteryMonitorCoordinator, entry: ConfigEntry, description: BatterySensorDescription) -> None:
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name=entry.title,
-            manufacturer="HA Battery Monitor",
-            model="Battery Monitor",
+            manufacturer="HA Battery Status Monitor",
+            model="HA Battery Status Monitor",
         )
 
     @property
@@ -89,11 +59,7 @@ class BatteryCountSensor(CoordinatorEntity[BatteryMonitorCoordinator], SensorEnt
         data = self.coordinator.data
         items = data.get("items", [])
         if self.entity_description.status is not None:
-            items = [
-                item
-                for item in items
-                if item["status"] == self.entity_description.status
-            ]
+            items = [item for item in items if item["status"] == self.entity_description.status]
         return {
             "devices": items,
             "counts": data.get("counts", {}),
