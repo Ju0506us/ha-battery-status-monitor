@@ -1,4 +1,4 @@
-# HA Battery Monitor
+# HA Battery Status Monitor
 
 Eine lokale Home-Assistant-Integration zur Überwachung des Batteriestatus ausgewählter Geräte inklusive einer responsiven, theme-kompatiblen Lovelace-Karte.
 
@@ -12,6 +12,7 @@ Eine lokale Home-Assistant-Integration zur Überwachung des Batteriestatus ausge
 - Zweistufige Einrichtung:
   1. Geräte zur Überwachung auswählen
   2. Warn- und kritische Schwelle konfigurieren
+- Bei der Geräteauswahl werden nur Geräte mit unterstützten Batterie-Entitäten angezeigt
 - Mehrere Geräte können ausgewählt werden
 - Batterie-Entitäten der ausgewählten Geräte werden automatisch erkannt
 - Numerische Batterie-Prozent-Sensoren werden unterstützt
@@ -19,7 +20,7 @@ Eine lokale Home-Assistant-Integration zur Überwachung des Batteriestatus ausge
 - `unknown` / `unavailable` werden als nicht erreichbar gemeldet
 - Mehrere Batterie-Entitäten eines Geräts werden zu einem Gerät zusammengefasst
 - Ein verfügbarer Prozentwert wird gegenüber einem binären Batteriestatus bevorzugt
-- Pro Battery-Monitor-Konfiguration werden fünf Sensoren erstellt:
+- Pro HA-Battery-Status-Monitor-Konfiguration werden fünf Sensoren erstellt:
   - Gesamt
   - Normal
   - Schwach
@@ -51,7 +52,7 @@ Mit den Standardwerten bedeutet das:
 
 ## Lovelace-Karte
 
-Das Projekt enthält eine eigene Lovelace-Karte unter `www/battery-monitor-card.js`.
+Das Projekt enthält die HA Battery Status Monitor Lovelace-Karte unter `www/battery-monitor-card.js`.
 
 Die Karte verwendet Home-Assistant-Theme-Variablen anstelle fest definierter Farben. Dadurch passt sie sich an Light Mode, Dark Mode und eigene Home-Assistant-Themes an und ist für Desktop, Smartphone und die Home-Assistant-Companion-App ausgelegt.
 
@@ -89,9 +90,9 @@ custom_components/battery_monitor/
 
 enthalten.
 
-Starte Home Assistant anschließend neu und füge **Battery Monitor** hinzu über:
+Starte Home Assistant anschließend neu und füge **HA Battery Status Monitor** hinzu über:
 
-**Einstellungen → Geräte & Dienste → Integration hinzufügen → Battery Monitor**
+**Einstellungen → Geräte & Dienste → Integration hinzufügen → HA Battery Status Monitor**
 
 ### Lovelace-Karte
 
