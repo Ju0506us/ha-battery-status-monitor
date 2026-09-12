@@ -55,7 +55,7 @@ class BatteryMonitorCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self.device_ids: set[str] = set(entry.options.get(CONF_DEVICE_IDS, entry.data[CONF_DEVICE_IDS]))
         self.warning_threshold = int(entry.options.get(CONF_WARNING_THRESHOLD, entry.data.get(CONF_WARNING_THRESHOLD, DEFAULT_WARNING_THRESHOLD)))
         self.critical_threshold = int(entry.options.get(CONF_CRITICAL_THRESHOLD, entry.data.get(CONF_CRITICAL_THRESHOLD, DEFAULT_CRITICAL_THRESHOLD)))
-        super().__init__(hass, logger=_LOGGER, name="Battery Monitor", update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL))
+        super().__init__(hass, logger=_LOGGER, name="HA Battery Status Monitor", update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL))
         self._unsub_state_changed = None
 
     async def async_config_entry_first_refresh(self) -> None:
@@ -141,8 +141,6 @@ class BatteryMonitorCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     @staticmethod
     def _select_best_item(items: list[BatteryItem]) -> BatteryItem:
-        # Prefer a usable percentage value, then a usable binary state, and only
-        # fall back to unavailable when no usable battery state exists.
         return sorted(
             items,
             key=lambda item: (
