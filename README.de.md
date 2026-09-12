@@ -56,19 +56,50 @@ Das Projekt enthält die HA Battery Status Monitor Lovelace-Karte unter `www/bat
 
 Die Karte verwendet Home-Assistant-Theme-Variablen anstelle fest definierter Farben. Dadurch passt sie sich an Light Mode, Dark Mode und eigene Home-Assistant-Themes an und ist für Desktop, Smartphone und die Home-Assistant-Companion-App ausgelegt.
 
+### Bedienung
+
+Oben werden die vier Status-Zusammenfassungen angezeigt:
+
+- Normal
+- Schwach
+- Kritisch
+- Nicht erreichbar
+
+Die vier Zusammenfassungen sind anklickbar. Ein Klick auf eine Kategorie schaltet darunter die vollständige Geräteliste dieses Status ein. Ein erneuter Klick auf die aktive Kategorie oder auf **Zusammenfassung** führt zurück zur Zusammenfassung.
+
+### Zusammenfassungsmodus
+
+Die Startansicht kann auf **Zusammenfassung** gestellt werden. Dann werden unter den vier Status-Zählern die ersten **2 oder 3 Geräte je ausgewählter Kategorie** angezeigt.
+
+Über den grafischen Karten-Editor kann festgelegt werden:
+
+- welche Ansicht beim Start aktiv ist: Zusammenfassung, Normal, Schwach, Kritisch oder Nicht erreichbar
+- ob 2 oder 3 Geräte je Kategorie in der Zusammenfassung angezeigt werden
+- welche Kategorien in der Zusammenfassung erscheinen: alle oder nur ausgewählte Kategorien
+
 Beispiel:
 
 ```yaml
 type: custom:battery-monitor-card
 entity: sensor.ha_battery_status_monitor_gesamt
-show_normal: false
-show_weak: true
-show_critical: true
-show_unavailable: true
-show_values: true
+show_header: true
+show_summary: true
+default_view: summary
+summary_limit: 2
+summary_categories:
+  - normal
+  - weak
+  - critical
+  - unavailable
 ```
 
-Oben zeigt die Karte die Status-Zähler. Darunter können problematische Geräte aufgelistet werden. Normale Geräte können standardmäßig ausgeblendet werden.
+### Lovelace-Ressource
+
+```text
+/local/battery-monitor-card.js
+```
+
+Die Ressource wird als JavaScript-Modul (`module`) registriert.
 
 ## Installation während der Entwicklung
 
@@ -163,6 +194,9 @@ Vor einer stabilen Veröffentlichung sind Tests mit echten Geräten erforderlich
 - Neustart-/Reload-Verhalten von Home Assistant
 - helle und dunkle Themes
 - Smartphone- und Desktop-Layout
+- Interaktion mit den Status-Zusammenfassungen
+- Zusammenfassungsmodus mit 2 und 3 Geräten pro Kategorie
+- verschiedene Standardansichten
 
 ## Hinweis zur KI-Unterstützung
 
