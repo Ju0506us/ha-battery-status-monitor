@@ -1,6 +1,6 @@
 class BatteryMonitorCard extends HTMLElement {
   static getConfigElement() { return document.createElement("battery-monitor-card-editor"); }
-  static getStubConfig() { return { entity: "sensor.battery_monitor_gesamt" }; }
+  static getStubConfig() { return { entity: "sensor.ha_battery_status_monitor_gesamt" }; }
 
   setConfig(config) {
     if (!config || !config.entity) throw new Error("HA Battery Status Monitor Card benötigt eine entity.");
