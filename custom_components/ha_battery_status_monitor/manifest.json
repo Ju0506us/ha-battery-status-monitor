@@ -1,5 +1,5 @@
 {
-  "domain": "battery_monitor",
+  "domain": "ha_battery_status_monitor",
   "name": "HA Battery Status Monitor",
   "codeowners": ["@Ju0506us"],
   "config_flow": true,
@@ -7,5 +7,5 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/Ju0506us/ha-battery-monitor/issues",
   "requirements": [],
-  "version": "0.1.1"
+  "version": "0.2.0"
 }

@@ -1,4 +1,4 @@
-DOMAIN = "battery_monitor"
+DOMAIN = "ha_battery_status_monitor"
 
 CONF_DEVICE_IDS = "device_ids"
 CONF_WARNING_THRESHOLD = "warning_threshold"
