@@ -130,12 +130,27 @@ class BatteryMonitorCard extends HTMLElement {
     };
 
     this._activeView = this._config.default_view;
+    this._lastRenderState = null;
+    this._lastRenderConfig = null;
     this._render();
   }
 
   set hass(hass) {
     this._hass = hass;
-    this._render();
+
+    // Home Assistant assigns a new hass object very frequently. Rebuilding
+    // the complete DOM on every hass update caused visible flicker and made
+    // clicks unreliable. Only render when this card's entity actually changed.
+    const state = hass?.states?.[this._config?.entity];
+    if (!state) {
+      this._render();
+      return;
+    }
+
+    const renderState = `${state.state}|${state.last_changed}|${state.last_updated}`;
+    if (renderState !== this._lastRenderState) {
+      this._render();
+    }
   }
 
   getCardSize() {
@@ -155,26 +170,10 @@ class BatteryMonitorCard extends HTMLElement {
 
   _defs() {
     return [
-      {
-        key: "normal",
-        label: "Normal",
-        icon: "✓",
-      },
-      {
-        key: "weak",
-        label: "Schwach",
-        icon: "▾",
-      },
-      {
-        key: "critical",
-        label: "Kritisch",
-        icon: "!",
-      },
-      {
-        key: "unavailable",
-        label: "Nicht erreichbar",
-        icon: "×",
-      },
+      { key: "normal", label: "Normal", icon: "mdi:battery-check" },
+      { key: "weak", label: "Schwach", icon: "mdi:battery-30" },
+      { key: "critical", label: "Kritisch", icon: "mdi:battery-alert" },
+      { key: "unavailable", label: "Nicht erreichbar", icon: "mdi:battery-off" },
     ];
   }
 
@@ -184,6 +183,7 @@ class BatteryMonitorCard extends HTMLElement {
     const state = this._hass.states[this._config.entity];
     if (!state) {
       this.innerHTML = '<ha-card><div class="content">HA Battery Status Monitor Entity nicht gefunden.</div></ha-card>';
+      this._lastRenderState = null;
       return;
     }
 
@@ -192,12 +192,10 @@ class BatteryMonitorCard extends HTMLElement {
       ? state.attributes.devices
       : [];
     const defs = this._defs();
-
-    const visibleCounts = this._config.show_summary ? defs : [];
     const activeView = this._activeView || this._config.default_view || "summary";
 
-    const countsHtml = visibleCounts.length
-      ? `<div class="counts">${visibleCounts
+    const countsHtml = this._config.show_summary
+      ? `<div class="counts">${defs
           .map((status) => this._count(status, counts[status.key] || 0, activeView))
           .join("")}</div>`
       : "";
@@ -209,7 +207,7 @@ class BatteryMonitorCard extends HTMLElement {
         <style>${this._styles()}</style>
         <div class="content">
           ${this._config.show_header
-            ? '<div class="header"><div class="title"><span class="title-icon">⌁</span><span>HA Battery Status Monitor</span></div></div>'
+            ? '<div class="header"><div class="title"><ha-icon icon="mdi:battery" class="title-icon"></ha-icon><span>HA Battery Status Monitor</span></div></div>'
             : ""}
           ${countsHtml}
           ${contentHtml}
@@ -217,6 +215,7 @@ class BatteryMonitorCard extends HTMLElement {
       </ha-card>
     `;
 
+    this._lastRenderState = `${state.state}|${state.last_changed}|${state.last_updated}`;
     this._bindEvents();
   }
 
@@ -231,7 +230,7 @@ class BatteryMonitorCard extends HTMLElement {
         aria-label="${status.label}: ${value}"
         aria-pressed="${activeView === status.key}"
       >
-        <span class="count-icon">${status.icon}</span>
+        <ha-icon icon="${status.icon}" class="count-icon"></ha-icon>
         <strong>${value}</strong>
         <span class="count-label">${status.label}</span>
       </button>
@@ -271,8 +270,8 @@ class BatteryMonitorCard extends HTMLElement {
     return `
       <div class="detail-toolbar">
         <button class="back-button" type="button" data-summary="true">
-          <span>←</span>
-          <span>Zusammenfassung</span>
+          <ha-icon icon="mdi:arrow-left" class="back-icon"></ha-icon>
+          <span>Zur Zusammenfassung</span>
         </button>
       </div>
       ${section || '<div class="empty">Keine Geräte in diesem Status.</div>'}
@@ -290,7 +289,7 @@ class BatteryMonitorCard extends HTMLElement {
     return `
       <section class="section ${status.key}">
         <div class="section-title">
-          <span class="section-icon">${status.icon}</span>
+          <ha-icon icon="${status.icon}" class="section-icon"></ha-icon>
           <span>${status.label}</span>
           <span class="section-count">${total}</span>
         </div>
@@ -321,7 +320,9 @@ class BatteryMonitorCard extends HTMLElement {
 
   _bindEvents() {
     this.querySelectorAll(".battery-status-count[data-status]").forEach((button) => {
-      button.addEventListener("click", () => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         const status = button.dataset.status;
         this._activeView = this._activeView === status ? "summary" : status;
         this._render();
@@ -329,14 +330,18 @@ class BatteryMonitorCard extends HTMLElement {
     });
 
     this.querySelectorAll(".back-button[data-summary]").forEach((button) => {
-      button.addEventListener("click", () => {
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
         this._activeView = "summary";
         this._render();
       });
     });
 
     this.querySelectorAll(".device-row[data-entity]").forEach((row) => {
-      const open = () => {
+      const open = (event) => {
+        event?.preventDefault();
+        event?.stopPropagation();
         this.dispatchEvent(
           new CustomEvent("hass-more-info", {
             bubbles: true,
@@ -350,7 +355,7 @@ class BatteryMonitorCard extends HTMLElement {
       row.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          open();
+          open(event);
         }
       });
     });
@@ -371,17 +376,17 @@ class BatteryMonitorCard extends HTMLElement {
       .content{padding:16px}
       .header{display:flex;align-items:center;margin-bottom:14px}
       .title{display:flex;align-items:center;gap:10px;font-size:1.15rem;font-weight:600}
-      .title-icon{color:var(--primary-color);font-size:1.25rem}
+      .title-icon{color:var(--primary-color);--mdc-icon-size:21px}
 
       .counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
-      .battery-status-count{position:relative;appearance:none;border:0;font:inherit;text-align:left;color:var(--primary-text-color);display:grid;grid-template-columns:auto 1fr;column-gap:7px;align-items:center;padding:10px;border-radius:12px;background:var(--secondary-background-color);min-width:0;box-sizing:border-box;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;transition:background .15s ease,transform .15s ease,box-shadow .15s ease}
-      .battery-status-count:hover{background:var(--primary-background-color);transform:translateY(-1px)}
-      .battery-status-count:active{transform:translateY(0)}
+      .battery-status-count{position:relative;appearance:none;border:0;font:inherit;text-align:left;color:var(--primary-text-color);display:grid;grid-template-columns:auto 1fr;column-gap:7px;align-items:center;padding:10px;border-radius:12px;background:var(--secondary-background-color);min-width:0;box-sizing:border-box;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+      .battery-status-count:hover{background:var(--primary-background-color)}
+      .battery-status-count:active{background:var(--secondary-background-color)}
       .battery-status-count.active{box-shadow:inset 0 0 0 2px var(--primary-color);background:var(--primary-background-color)}
       .battery-status-count:focus-visible{outline:2px solid var(--primary-color);outline-offset:2px}
       .battery-status-count strong{font-size:1.2rem;line-height:1}
       .count-label{grid-column:1/-1;margin-top:4px;font-size:.72rem;color:var(--secondary-text-color);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .count-icon,.section-icon{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;font-weight:700}
+      .count-icon,.section-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;--mdc-icon-size:22px}
       .critical .count-icon,.critical .device-value,.critical .section-icon{color:var(--error-color)}
       .weak .count-icon,.weak .device-value,.weak .section-icon{color:var(--warning-color)}
       .unavailable .count-icon,.unavailable .device-value,.unavailable .section-icon{color:var(--secondary-text-color)}
@@ -389,9 +394,10 @@ class BatteryMonitorCard extends HTMLElement {
       .view-label{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:4px 0 8px;padding:0 10px}
       .view-label-title{font-weight:600}
       .view-label-hint{font-size:.78rem;color:var(--secondary-text-color)}
-      .detail-toolbar{display:flex;justify-content:flex-start;margin:2px 0 10px}
-      .back-button{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:8px;padding:6px 9px;background:transparent;color:var(--primary-color);font:inherit;font-size:.86rem;cursor:pointer}
-      .back-button:hover{background:var(--secondary-background-color)}
+      .detail-toolbar{display:flex;justify-content:flex-start;margin:2px 0 12px}
+      .back-button{display:inline-flex;align-items:center;gap:9px;border:0;border-radius:10px;padding:10px 14px;min-height:42px;background:var(--secondary-background-color);color:var(--primary-color);font:inherit;font-size:.95rem;font-weight:500;cursor:pointer}
+      .back-button:hover{background:var(--primary-background-color)}
+      .back-icon{--mdc-icon-size:21px}
 
       .sections{display:flex;flex-direction:column;gap:4px}
       .section{margin-top:8px}
@@ -414,6 +420,7 @@ class BatteryMonitorCard extends HTMLElement {
         .view-label{padding:0 6px}
         .device-list{padding-left:6px}
         .section-title{padding-left:6px}
+        .back-button{padding:10px 13px;min-height:42px;font-size:.92rem}
       }
 
       @media(max-width:430px){
