@@ -8,6 +8,9 @@ from homeassistant.config_entries import OptionsFlowWithReload
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
@@ -72,16 +75,33 @@ def _device_schema(hass, default: list[str] | None = None) -> vol.Schema:
 
 
 def _threshold_schema(warning_default: int, critical_default: int) -> vol.Schema:
+    """Build threshold selectors with a visible numeric value and percent unit."""
     return vol.Schema(
         {
             vol.Required(
                 CONF_WARNING_THRESHOLD,
                 default=warning_default,
-            ): vol.All(vol.Coerce(int), vol.Range(min=1, max=100)),
+            ): NumberSelector(
+                NumberSelectorConfig(
+                    min=1,
+                    max=100,
+                    step=1,
+                    unit_of_measurement="%",
+                    mode=NumberSelectorMode.SLIDER,
+                )
+            ),
             vol.Required(
                 CONF_CRITICAL_THRESHOLD,
                 default=critical_default,
-            ): vol.All(vol.Coerce(int), vol.Range(min=0, max=99)),
+            ): NumberSelector(
+                NumberSelectorConfig(
+                    min=0,
+                    max=99,
+                    step=1,
+                    unit_of_measurement="%",
+                    mode=NumberSelectorMode.SLIDER,
+                )
+            ),
         }
     )
 
