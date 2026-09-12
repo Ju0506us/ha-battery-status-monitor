@@ -96,7 +96,11 @@ class BatteryMonitorCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
     @staticmethod
     def _is_battery_entity(entity: er.RegistryEntry) -> bool:
-        if entity.device_class == "battery":
+        # Use both the current and original device class. Some integrations
+        # keep the battery class in original_device_class while the current
+        # registry value is unset. The config-flow device selector already
+        # uses the same rule, so detection must stay consistent here.
+        if entity.device_class == "battery" or entity.original_device_class == "battery":
             return True
         if entity.domain == "binary_sensor":
             object_id = entity.entity_id.rsplit(".", 1)[-1]
