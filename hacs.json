@@ -1,6 +1,5 @@
 {
   "name": "HA Battery Status Monitor",
-  "content_in_root": false,
-  "homeassistant": "2025.1.0",
+  "homeassistant": "2026.8.0",
   "render_readme": true
 }
