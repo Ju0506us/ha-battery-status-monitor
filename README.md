@@ -1,4 +1,4 @@
-# HA Battery Monitor
+# HA Battery Status Monitor
 
 A local Home Assistant integration for monitoring the battery status of selected devices, including a responsive, theme-aware Lovelace card.
 
@@ -12,6 +12,7 @@ A local Home Assistant integration for monitoring the battery status of selected
 - Two-step setup:
   1. Select the devices to monitor
   2. Configure warning and critical thresholds
+- Only devices with supported battery entities are shown in the device selection
 - Multiple devices can be selected
 - Battery entities are discovered automatically from the selected devices
 - Numeric battery percentage sensors are supported
@@ -19,7 +20,7 @@ A local Home Assistant integration for monitoring the battery status of selected
 - `unknown` / `unavailable` battery states are reported as not reachable
 - Multiple battery entities belonging to one device are combined into one device entry
 - A usable percentage value is preferred over a binary battery state
-- Five sensors are created for each Battery Monitor configuration:
+- Five sensors are created for each HA Battery Status Monitor configuration:
   - Total
   - Normal
   - Weak
@@ -51,7 +52,7 @@ With the default thresholds this means:
 
 ## Lovelace card
 
-The project includes a custom Lovelace card in `www/battery-monitor-card.js`.
+The project includes the HA Battery Status Monitor Lovelace card in `www/battery-monitor-card.js`.
 
 The card is designed to use Home Assistant theme variables instead of hard-coded colors. It therefore adapts to light mode, dark mode and custom Home Assistant themes and is designed for desktop, mobile and the Home Assistant Companion App.
 
@@ -87,9 +88,9 @@ The directory must contain the integration files from:
 custom_components/battery_monitor/
 ```
 
-Restart Home Assistant afterwards and add **Battery Monitor** through:
+Restart Home Assistant afterwards and add **HA Battery Status Monitor** through:
 
-**Settings → Devices & services → Add integration → Battery Monitor**
+**Settings → Devices & services → Add integration → HA Battery Status Monitor**
 
 ### Lovelace card
 
