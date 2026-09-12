@@ -270,3 +270,7 @@ This project is released under the **MIT License**. See `LICENSE`.
 ---
 
 Developed with care for Home Assistant and local smart-home infrastructure.
+
+## Version 1.0.1
+
+- Updated documentation for HACS Default Store submission.
