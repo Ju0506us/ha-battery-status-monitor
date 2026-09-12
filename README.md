@@ -1,83 +1,161 @@
-# HA Battery Status Monitor
+# 🔋 HA Battery Status Monitor
 
-A local Home Assistant integration for monitoring the battery status of selected devices, including a responsive, theme-aware Lovelace card.
+🇩🇪 **Deutsch**  
+Eine lokale Home-Assistant-Integration zur übersichtlichen Überwachung der Batteriestände ausgewählter Geräte – inklusive einer modernen, responsiven Lovelace-Karte.
 
-> **Development status:** private / early V1. The project is currently being tested on a real Home Assistant installation and is not yet ready for public HACS distribution.
+🇬🇧 **English**  
+A local Home Assistant integration for monitoring the battery status of selected devices – including a modern, responsive Lovelace card.
 
-## Features
+> 🇩🇪 **V1-Status:** Die erste V1-Version wurde auf einer realen Home-Assistant-Installation getestet und die vorgesehenen V1-Funktionen sind erfolgreich getestet.  
+> 🇬🇧 **V1 status:** The first V1 version has been tested on a real Home Assistant installation and the intended V1 functionality has passed testing.
 
-### Integration
+---
 
-- Configuration through the Home Assistant Config Flow
-- Two-step setup:
-  1. Select the devices to monitor
-  2. Configure warning and critical thresholds
-- Only devices with supported battery entities are shown in the device selection
-- Multiple devices can be selected
-- Battery entities are discovered automatically from the selected devices
-- Numeric battery percentage sensors are supported
-- Binary low-battery sensors are supported (`off` = normal, `on` = critical)
-- `unknown` / `unavailable` battery states are reported as not reachable
-- Multiple battery entities belonging to one device are combined into one device entry
-- A usable percentage value is preferred over a binary battery state
-- Five sensors are created for each HA Battery Status Monitor configuration:
-  - Total
-  - Normal
-  - Weak
-  - Critical
-  - Not reachable
-- Device names are used instead of cryptic entity IDs
-- Configuration changes can be made through the integration options
-- Default warning threshold: **20%**
-- Default critical threshold: **10%**
-- Local-only operation; no external service is required
+## ✨ Funktionen · Features
 
-### Battery status rules
+### 🔧 Integration
 
-| Input | Result |
-|---|---|
-| `> warning threshold` | Normal |
-| `critical threshold + 1` to `warning threshold` | Weak |
-| `1` to `critical threshold` | Critical |
-| `unknown` / `unavailable` | Not reachable |
-| binary `off` | Normal |
-| binary `on` | Critical |
+🇩🇪 **Deutsch**
 
-With the default thresholds this means:
+- ⚙️ Einrichtung über den Home-Assistant-Config-Flow
+- 🏠 Auswahl der zu überwachenden **Geräte** statt einzelner Entitäten
+- 🔎 Automatische Erkennung unterstützter Batterie-Entitäten
+- 📊 Unterstützung für numerische Batterie-Prozentwerte
+- 🔘 Unterstützung für binäre Batterie-Sensoren (`off` = normal, `on` = kritisch)
+- 📦 Mehrere Batterie-Entitäten eines Geräts werden zu **einem Gerät** zusammengefasst
+- 🎯 Ein verfügbarer numerischer Prozentwert wird gegenüber einem binären Batteriestatus bevorzugt
+- ⚠️ `unknown` und `unavailable` werden als **Nicht erreichbar** behandelt
+- 🏷️ Verwendung von Gerätenamen statt kryptischer Entity-IDs
+- 🎚️ Individuell konfigurierbare Warn- und kritische Schwellen
+- 🔄 Konfiguration kann jederzeit über die Integrationsoptionen geändert werden
+- 🧮 Fünf Zähler-Sensoren: Gesamt, Normal, Schwach, Kritisch und Nicht erreichbar
+- 🏡 Rein lokaler Betrieb – kein externer Dienst und keine Cloud erforderlich
 
-- `> 20%` → Normal
-- `11–20%` → Weak
-- `1–10%` → Critical
-- `unknown` / `unavailable` → Not reachable
+🇬🇧 **English**
 
-## Lovelace card
+- ⚙️ Setup through the Home Assistant Config Flow
+- 🏠 Select **devices** to monitor instead of individual entities
+- 🔎 Automatically discovers supported battery entities
+- 📊 Supports numeric battery percentage values
+- 🔘 Supports binary battery sensors (`off` = normal, `on` = critical)
+- 📦 Multiple battery entities belonging to one device are combined into **one device**
+- 🎯 An available numeric percentage value is preferred over a binary battery state
+- ⚠️ `unknown` and `unavailable` are reported as **Not reachable**
+- 🏷️ Uses device names instead of cryptic entity IDs
+- 🎚️ Configurable warning and critical thresholds
+- 🔄 Configuration can be changed through the integration options
+- 🧮 Five count sensors: Total, Normal, Weak, Critical and Not reachable
+- 🏡 Fully local operation – no external service or cloud is required
 
-The project includes the HA Battery Status Monitor Lovelace card in `www/battery-monitor-card.js`.
+---
 
-The card is designed to use Home Assistant theme variables instead of hard-coded colors. It therefore adapts to light mode, dark mode and custom Home Assistant themes and is designed for desktop, mobile and the Home Assistant Companion App.
+## 🔋 Batteriestatus · Battery status
 
-### Interaction
+🇩🇪 **Deutsch**
 
-The four status summaries are shown at the top:
+Die Standardwerte sind:
 
-- Normal
-- Weak
-- Critical
-- Not reachable
+| Batteriestand | Status |
+|---:|---|
+| **> 20 %** | 🟢 Normal |
+| **11–20 %** | 🟡 Schwach |
+| **1–10 %** | 🔴 Kritisch |
+| `unknown` / `unavailable` | ⚫ Nicht erreichbar |
+| Binär `off` | 🟢 Normal |
+| Binär `on` | 🔴 Kritisch |
 
-Each status summary is clickable. Clicking a category shows the complete device list for that status directly below the summaries. Clicking the active category again, or using **Summary**, returns to the summary view.
+Die Warn- und kritische Schwelle können in der Konfiguration angepasst werden.
 
-### Summary mode
+🇬🇧 **English**
 
-The default view can be set to **Summary**. In this mode the card shows the first **2 or 3 devices per selected category** below the status summaries.
+The default thresholds are:
+
+| Battery level | Status |
+|---:|---|
+| **> 20%** | 🟢 Normal |
+| **11–20%** | 🟡 Weak |
+| **1–10%** | 🔴 Critical |
+| `unknown` / `unavailable` | ⚫ Not reachable |
+| Binary `off` | 🟢 Normal |
+| Binary `on` | 🔴 Critical |
+
+The warning and critical thresholds can be adjusted in the configuration.
+
+---
+
+## 🎨 Lovelace-Karte · Lovelace card
+
+🇩🇪 **Deutsch**
+
+Das Projekt enthält die passende Lovelace-Karte:
+
+```text
+www/battery-monitor-card.js
+```
+
+Die Karte ist auf eine übersichtliche Darstellung ausgelegt und verwendet Home-Assistant-Theme-Variablen. Dadurch passt sie sich an **Light Mode, Dark Mode und eigene Themes** an.
+
+Sie ist für **Desktop, Smartphone und die Home-Assistant-Companion-App** ausgelegt.
+
+🇬🇧 **English**
+
+The project includes a matching Lovelace card:
+
+```text
+www/battery-monitor-card.js
+```
+
+The card is designed for a clean overview and uses Home Assistant theme variables. It therefore adapts to **light mode, dark mode and custom themes**.
+
+It is designed for **desktop, mobile and the Home Assistant Companion App**.
+
+### 🖱️ Bedienung · Interaction
+
+🇩🇪 **Deutsch**
+
+Oben werden die vier Statusbereiche angezeigt:
+
+- 🟢 Normal
+- 🟡 Schwach
+- 🔴 Kritisch
+- ⚫ Nicht erreichbar
+
+Jeder Status ist anklickbar. Ein Klick zeigt die vollständige Geräteliste dieses Status direkt in der Karte an. Ein erneuter Klick auf den aktiven Status oder die Zurück-Schaltfläche führt wieder zur Zusammenfassung.
+
+🇬🇧 **English**
+
+The four status categories are displayed at the top:
+
+- 🟢 Normal
+- 🟡 Weak
+- 🔴 Critical
+- ⚫ Not reachable
+
+Each status is clickable. Clicking a status displays the complete device list for that category directly in the card. Clicking the active status again or using the back button returns to the summary.
+
+### 📋 Zusammenfassung · Summary mode
+
+🇩🇪 **Deutsch**
+
+Die Startansicht kann als **Zusammenfassung** konfiguriert werden. Dabei werden pro ausgewählter Kategorie die ersten **2 oder 3 Geräte** angezeigt.
+
+Der grafische Karten-Editor ermöglicht die Konfiguration von:
+
+- Startansicht: Zusammenfassung, Normal, Schwach, Kritisch oder Nicht erreichbar
+- Anzahl der Geräte in der Zusammenfassung: 2 oder 3
+- Kategorien in der Zusammenfassung: alle oder nur ausgewählte Kategorien
+
+🇬🇧 **English**
+
+The default view can be configured as **Summary**. In this mode, the first **2 or 3 devices** are shown for each selected category.
 
 The graphical card editor allows you to configure:
 
-- the default view on startup: Summary, Normal, Weak, Critical or Not reachable
-- whether 2 or 3 devices per category are shown in Summary mode
-- which categories appear in Summary mode: all or only selected categories
+- Default view: Summary, Normal, Weak, Critical or Not reachable
+- Number of devices shown in Summary mode: 2 or 3
+- Categories shown in Summary mode: all or selected categories
 
-Example:
+### 🧩 Beispiel · Example
 
 ```yaml
 type: custom:battery-monitor-card
@@ -93,59 +171,137 @@ summary_categories:
   - unavailable
 ```
 
-### Lovelace resource
+### 📌 Lovelace-Ressource · Lovelace resource
+
+🇩🇪 **Deutsch**  
+Die Karte wird als JavaScript-Modul (`module`) registriert:
+
+🇬🇧 **English**  
+Register the card as a JavaScript module (`module`):
 
 ```text
 /local/battery-monitor-card.js
 ```
 
-Register the resource as a JavaScript module (`module`).
+---
 
-## Installation during development
+## 📦 Installation · Installation
 
-The repository is private while V1 is being tested.
+### 🧩 HACS
 
-### Integration
+🇩🇪 **Deutsch**
 
-Copy the following directory to your Home Assistant configuration directory:
+Sobald das Repository öffentlich für HACS verfügbar ist, kann die Integration über **HACS → Integrationen** installiert werden.
+
+Anschließend muss die Lovelace-Karte als Ressource eingebunden werden. Die genaue HACS-Struktur und die öffentliche Release-Konfiguration werden vor der ersten öffentlichen Veröffentlichung festgelegt.
+
+🇬🇧 **English**
+
+Once the repository is publicly available through HACS, the integration can be installed via **HACS → Integrations**.
+
+The Lovelace card then needs to be added as a resource. The final HACS structure and public release configuration will be defined before the first public release.
+
+### 🛠️ Manuelle Installation · Manual installation
+
+🇩🇪 **Deutsch**
+
+Kopiere die Integration nach:
 
 ```text
 /config/custom_components/ha_battery_status_monitor/
 ```
 
-The directory must contain the integration files from:
+Der Inhalt stammt aus:
 
 ```text
 custom_components/ha_battery_status_monitor/
 ```
 
-Restart Home Assistant afterwards and add **HA Battery Status Monitor** through:
-
-**Settings → Devices & services → Add integration → HA Battery Status Monitor**
-
-### Lovelace card
-
-Copy:
-
-```text
-www/battery-monitor-card.js
-```
-
-to:
+Kopiere anschließend die Lovelace-Karte nach:
 
 ```text
 /config/www/battery-monitor-card.js
 ```
 
-Then add the JavaScript module as a Lovelace resource:
+Registriere sie als JavaScript-Modul unter:
 
 ```text
 /local/battery-monitor-card.js
 ```
 
-The final HACS distribution layout will be defined before the first public release.
+Danach Home Assistant neu starten und die Integration über:
 
-## Repository structure
+**Einstellungen → Geräte & Dienste → Integration hinzufügen → HA Battery Status Monitor**
+
+hinzufügen.
+
+🇬🇧 **English**
+
+Copy the integration to:
+
+```text
+/config/custom_components/ha_battery_status_monitor/
+```
+
+The integration files are located in:
+
+```text
+custom_components/ha_battery_status_monitor/
+```
+
+Then copy the Lovelace card to:
+
+```text
+/config/www/battery-monitor-card.js
+```
+
+Register it as a JavaScript module at:
+
+```text
+/local/battery-monitor-card.js
+```
+
+Restart Home Assistant and add the integration through:
+
+**Settings → Devices & services → Add integration → HA Battery Status Monitor**
+
+---
+
+## 📊 Sensoren · Sensors
+
+🇩🇪 **Deutsch**
+
+Jede Konfiguration erstellt fünf Zähler-Sensoren:
+
+| Sensor | Bedeutung |
+|---|---|
+| `sensor.ha_battery_status_monitor_gesamt` | Anzahl aller überwachten Geräte |
+| `sensor.ha_battery_status_monitor_normal` | Geräte mit normalem Batteriestatus |
+| `sensor.ha_battery_status_monitor_schwach` | Geräte mit schwachem Batteriestatus |
+| `sensor.ha_battery_status_monitor_kritisch` | Geräte mit kritischem Batteriestatus |
+| `sensor.ha_battery_status_monitor_nicht_erreichbar` | Nicht erreichbare Geräte |
+
+🇬🇧 **English**
+
+Each configuration creates five count sensors:
+
+| Sensor | Meaning |
+|---|---|
+| `sensor.ha_battery_status_monitor_gesamt` | Number of all monitored devices |
+| `sensor.ha_battery_status_monitor_normal` | Devices with a normal battery status |
+| `sensor.ha_battery_status_monitor_schwach` | Devices with a weak battery status |
+| `sensor.ha_battery_status_monitor_kritisch` | Devices with a critical battery status |
+| `sensor.ha_battery_status_monitor_nicht_erreichbar` | Devices that are not reachable |
+
+---
+
+## 🏗️ Projektstruktur · Project structure
+
+🇩🇪 **Deutsch**  
+Die aktuelle V1-Struktur besteht aus der Home-Assistant-Integration und der Lovelace-Karte.
+
+🇬🇧 **English**  
+The current V1 structure consists of the Home Assistant integration and the Lovelace card.
 
 ```text
 custom_components/ha_battery_status_monitor/
@@ -163,43 +319,106 @@ www/
 └── battery-monitor-card.js
 ```
 
-## Development
+---
 
-The project is intentionally being developed and tested incrementally against a real Home Assistant installation.
+## 🧪 V1-Testing · V1-Tests
 
-The current V1 foundation focuses on:
+🇩🇪 **Deutsch**
 
-- reliable device selection
-- correct battery-state classification
-- device de-duplication
-- configuration editing
-- count sensors
-- a theme-aware Lovelace card
+Die V1 wurde auf einer realen Home-Assistant-Installation getestet. Getestet wurden unter anderem:
 
-Future versions may add notifications, recovery/status-change events, history, battery age, last-update information and more advanced automation features.
+- ✅ normale, schwache und kritische Batteriestände
+- ✅ unterschiedliche Warn- und kritische Schwellen
+- ✅ `unknown` und `unavailable`
+- ✅ binäre Batterie-Sensoren
+- ✅ Geräteauswahl und Konfigurationsänderungen
+- ✅ Status-Navigation der Lovelace-Karte
+- ✅ Zusammenfassungsmodus mit 2 und 3 Geräten
+- ✅ grafischer Karten-Editor
+- ✅ Light Mode und Dark Mode
+- ✅ Desktop, Smartphone und Companion App
+- ✅ Neustart und Reload
+- ✅ stabiles Rendering ohne Flackern oder unerwünschte Bewegungen
 
-## Testing
+Ein Szenario mit mehreren Batterie-Entitäten am selben Gerät konnte mangels eines entsprechenden Testgeräts noch nicht praktisch durchgeführt werden.
 
-Real-device testing is required before a stable release. Test cases include:
+🇬🇧 **English**
 
-- normal battery levels
-- weak battery levels
-- critical battery levels
-- unavailable entities
-- binary low-battery sensors
-- devices with multiple battery entities
-- configuration changes
-- Home Assistant restart/reload behavior
-- light and dark themes
-- mobile and desktop layouts
-- interaction with the status summaries
-- summary mode with 2 and 3 devices per category
-- different default views
+V1 has been tested on a real Home Assistant installation. Testing included:
 
-## AI-assisted development disclosure
+- ✅ normal, weak and critical battery levels
+- ✅ different warning and critical thresholds
+- ✅ `unknown` and `unavailable`
+- ✅ binary battery sensors
+- ✅ device selection and configuration changes
+- ✅ Lovelace status navigation
+- ✅ Summary mode with 2 and 3 devices
+- ✅ graphical card editor
+- ✅ light mode and dark mode
+- ✅ desktop, mobile and Companion App
+- ✅ restart and reload behavior
+- ✅ stable rendering without flickering or unwanted movement
 
+A real-world scenario with multiple battery entities on the same device has not yet been practically tested because no suitable test device is currently available.
+
+---
+
+## 🚀 Entwicklung · Development
+
+🇩🇪 **Deutsch**
+
+HA Battery Status Monitor wird eigenständig entwickelt und schrittweise erweitert. Vorschläge, Fehlerberichte und Verbesserungen sind willkommen.
+
+Die Entwicklung konzentriert sich zunächst auf eine stabile und zuverlässige Grundlage. Für zukünftige Versionen sind unter anderem folgende Funktionen denkbar:
+
+- 🔔 Benachrichtigungen bei niedrigem Batteriestand
+- ♻️ Recovery- und Statuswechsel-Ereignisse
+- 📈 Verlauf und Historie
+- 🕒 Batteriealter und letzte Aktualisierung
+- 🤖 Erweiterte Automatisierungsfunktionen
+
+Wenn du einen Fehler findest oder eine Idee hast, kannst du dafür gerne ein **GitHub Issue** erstellen.
+
+🇬🇧 **English**
+
+HA Battery Status Monitor is developed independently and expanded incrementally. Suggestions, bug reports and improvements are welcome.
+
+The initial focus is on a stable and reliable foundation. Future versions may include features such as:
+
+- 🔔 Low-battery notifications
+- ♻️ Recovery and status-change events
+- 📈 History and trends
+- 🕒 Battery age and last update information
+- 🤖 More advanced automation features
+
+If you find a bug or have an idea, feel free to open a **GitHub Issue**.
+
+---
+
+## 🤖 Hinweis zur KI-Unterstützung · AI-assisted development
+
+🇩🇪 **Deutsch**  
+Teile dieses Projekts wurden mit Unterstützung von KI erstellt. Der Code wurde von Menschen überprüft und auf realer Hardware bzw. in einer realen Home-Assistant-Umgebung getestet.
+
+🇬🇧 **English**  
 Parts of this project were created with the assistance of AI. The code has been reviewed by humans and tested on real hardware and in a real Home Assistant environment.
 
-## License
+---
 
-The license for the project will be defined before the first public release.
+## 📄 Lizenz · License
+
+🇩🇪 **Deutsch**  
+Die Lizenz wird vor der ersten öffentlichen Veröffentlichung festgelegt.
+
+🇬🇧 **English**  
+The license will be defined before the first public release.
+
+---
+
+## ❤️ Projekt · Project
+
+🇩🇪 **Deutsch**  
+Entwickelt mit ❤️ für Home Assistant und eine übersichtliche lokale Smart-Home-Infrastruktur.
+
+🇬🇧 **English**  
+Developed with ❤️ for Home Assistant and a clean, local smart-home infrastructure.
