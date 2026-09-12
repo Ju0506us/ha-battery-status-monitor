@@ -4,17 +4,9 @@ class BatteryMonitorCard extends HTMLElement {
 
   setConfig(config) {
     if (!config || !config.entity) throw new Error("Battery Monitor Card benötigt eine entity.");
-    this._config = {
-      show_normal: false,
-      show_weak: true,
-      show_critical: true,
-      show_unavailable: true,
-      show_values: true,
-      ...config,
-    };
+    this._config = { show_normal: false, show_weak: true, show_critical: true, show_unavailable: true, show_values: true, ...config };
     this._render();
   }
-
   set hass(hass) { this._hass = hass; this._render(); }
   getCardSize() { return 5; }
 
@@ -25,7 +17,6 @@ class BatteryMonitorCard extends HTMLElement {
       this.innerHTML = `<ha-card><div class="content">Battery Monitor Entity nicht gefunden.</div></ha-card>`;
       return;
     }
-
     const attrs = state.attributes || {};
     const counts = attrs.counts || {};
     const devices = attrs.devices || [];
@@ -35,74 +26,43 @@ class BatteryMonitorCard extends HTMLElement {
       ["unavailable", "Nicht erreichbar", "mdi:battery-off", "unavailable", this._config.show_unavailable],
       ["normal", "Normal", "mdi:battery-check", "normal", this._config.show_normal],
     ];
-
     const sectionHtml = sections.filter(section => section[4]).map(([key, title, icon, cls]) => {
       const items = devices.filter(item => item.status === key);
       if (!items.length) return "";
       return `<section class="section ${cls}">
         <div class="section-title"><ha-icon icon="${icon}"></ha-icon><span>${title}</span><span class="section-count">${items.length}</span></div>
-        ${items.map(item => `<div class="device-row" data-entity="${this._escape(item.entity_id)}">
-          <div class="device-name">${this._escape(item.device_name)}</div>
-          ${this._config.show_values ? `<div class="device-value">${this._escape(item.display_value)}</div>` : ""}
-        </div>`).join("")}
+        ${items.map(item => `<div class="device-row" data-entity="${this._escape(item.entity_id)}"><div class="device-name">${this._escape(item.device_name)}</div>${this._config.show_values ? `<div class="device-value">${this._escape(item.display_value)}</div>` : ""}</div>`).join("")}
       </section>`;
     }).join("");
-
-    this.innerHTML = `<ha-card>
-      <style>${this._styles()}</style>
-      <div class="content">
-        <div class="header"><div class="title"><ha-icon icon="mdi:battery-medium"></ha-icon><span>Batterien</span></div></div>
-        <div class="counts">
-          ${this._count("normal", "Normal", "mdi:battery-check", counts.normal || 0)}
-          ${this._count("weak", "Schwach", "mdi:battery-low", counts.weak || 0)}
-          ${this._count("critical", "Kritisch", "mdi:battery-alert", counts.critical || 0)}
-          ${this._count("unavailable", "Nicht erreichbar", "mdi:battery-off", counts.unavailable || 0)}
-        </div>
-        ${sectionHtml || `<div class="ok"><ha-icon icon="mdi:check-circle-outline"></ha-icon><span>Alle Batterien sind in Ordnung</span></div>`}
+    this.innerHTML = `<ha-card><style>${this._styles()}</style><div class="content">
+      <div class="header"><div class="title"><ha-icon icon="mdi:battery-medium"></ha-icon><span>Batterien</span></div></div>
+      <div class="counts">
+        ${this._count("normal", "Normal", "mdi:battery-check", counts.normal || 0)}
+        ${this._count("weak", "Schwach", "mdi:battery-low", counts.weak || 0)}
+        ${this._count("critical", "Kritisch", "mdi:battery-alert", counts.critical || 0)}
+        ${this._count("unavailable", "Nicht erreichbar", "mdi:battery-off", counts.unavailable || 0)}
       </div>
-    </ha-card>`;
-
+      ${sectionHtml || `<div class="ok"><ha-icon icon="mdi:check-circle-outline"></ha-icon><span>Alle Batterien sind in Ordnung</span></div>`}
+    </div></ha-card>`;
     this._bindRows();
   }
 
-  _count(cls, label, icon, value) {
-    return `<div class="count ${cls}"><ha-icon icon="${icon}"></ha-icon><strong>${value}</strong><span>${label}</span></div>`;
-  }
+  _count(cls, label, icon, value) { return `<div class="count ${cls}"><ha-icon icon="${icon}"></ha-icon><strong>${value}</strong><span>${label}</span></div>`; }
 
   _bindRows() {
     this.querySelectorAll(".device-row[data-entity]").forEach(row => row.addEventListener("click", () => {
-      this._hass.moreInfo(row.dataset.entity);
+      this.dispatchEvent(new CustomEvent("hass-more-info", { bubbles: true, composed: true, detail: { entityId: row.dataset.entity } }));
     }));
   }
 
-  _escape(value) {
-    return String(value ?? "").replace(/[&<>\"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[char]));
-  }
+  _escape(value) { return String(value ?? "").replace(/[&<>\"]/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[char])); }
 
   _styles() {
     return `
-      ha-card { overflow: hidden; }
-      .content { padding: 16px; }
-      .header { display:flex; align-items:center; margin-bottom:14px; }
-      .title { display:flex; align-items:center; gap:10px; font-size:1.15rem; font-weight:600; }
-      .title ha-icon { color: var(--primary-color); }
-      .counts { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin-bottom:14px; }
-      .count { display:grid; grid-template-columns:auto 1fr; column-gap:7px; align-items:center; padding:10px; border-radius:12px; background:var(--secondary-background-color); }
-      .count strong { font-size:1.2rem; line-height:1; }
-      .count span { grid-column:1/-1; margin-top:4px; font-size:.72rem; color:var(--secondary-text-color); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-      .count ha-icon { --mdc-icon-size:20px; }
-      .section { margin-top:14px; }
-      .section-title { display:flex; align-items:center; gap:8px; margin-bottom:6px; font-weight:600; }
-      .section-count { margin-left:auto; color:var(--secondary-text-color); font-size:.85rem; }
-      .device-row { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:42px; padding:7px 2px; border-bottom:1px solid var(--divider-color); cursor:pointer; }
-      .device-row:last-child { border-bottom:0; }
-      .device-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-      .device-value { flex:0 0 auto; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
-      .ok { display:flex; align-items:center; justify-content:center; gap:8px; padding:18px 8px 6px; color:var(--secondary-text-color); }
-      .critical ha-icon, .critical .device-value { color:var(--error-color); }
-      .weak ha-icon, .weak .device-value { color:var(--warning-color); }
-      .unavailable ha-icon, .unavailable .device-value { color:var(--secondary-text-color); }
-      @media (max-width:600px) { .counts { grid-template-columns:repeat(2,minmax(0,1fr)); } .content { padding:14px; } }
+      ha-card{overflow:hidden}.content{padding:16px}.header{display:flex;align-items:center;margin-bottom:14px}.title{display:flex;align-items:center;gap:10px;font-size:1.15rem;font-weight:600}.title ha-icon{color:var(--primary-color)}
+      .counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}.count{display:grid;grid-template-columns:auto 1fr;column-gap:7px;align-items:center;padding:10px;border-radius:12px;background:var(--secondary-background-color)}.count strong{font-size:1.2rem;line-height:1}.count span{grid-column:1/-1;margin-top:4px;font-size:.72rem;color:var(--secondary-text-color);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.count ha-icon{--mdc-icon-size:20px}
+      .section{margin-top:14px}.section-title{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-weight:600}.section-count{margin-left:auto;color:var(--secondary-text-color);font-size:.85rem}.device-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:42px;padding:7px 2px;border-bottom:1px solid var(--divider-color);cursor:pointer}.device-row:last-child{border-bottom:0}.device-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.device-value{flex:0 0 auto;color:var(--secondary-text-color);font-variant-numeric:tabular-nums}.ok{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 8px 6px;color:var(--secondary-text-color)}.critical ha-icon,.critical .device-value{color:var(--error-color)}.weak ha-icon,.weak .device-value{color:var(--warning-color)}.unavailable ha-icon,.unavailable .device-value{color:var(--secondary-text-color)}
+      @media (max-width:600px){.counts{grid-template-columns:repeat(2,minmax(0,1fr))}.content{padding:14px}}
     `;
   }
 }
@@ -110,20 +70,12 @@ class BatteryMonitorCard extends HTMLElement {
 class BatteryMonitorCardEditor extends HTMLElement {
   setConfig(config) {
     this._config = { ...config };
-    this.innerHTML = `<div class="editor">
-      <ha-textfield id="entity" label="Gesamt-Sensor" value="${config.entity || ""}"></ha-textfield>
-      <ha-switch id="show_normal" ${config.show_normal ? "checked" : ""}>Normal anzeigen</ha-switch>
-      <ha-switch id="show_values" ${config.show_values !== false ? "checked" : ""}>Werte anzeigen</ha-switch>
-    </div>`;
+    this.innerHTML = `<div class="editor"><ha-textfield id="entity" label="Gesamt-Sensor" value="${config.entity || ""}"></ha-textfield><ha-switch id="show_normal" ${config.show_normal ? "checked" : ""}>Normal anzeigen</ha-switch><ha-switch id="show_values" ${config.show_values !== false ? "checked" : ""}>Werte anzeigen</ha-switch></div>`;
     this.querySelector("#entity").addEventListener("change", event => this._update("entity", event.target.value));
     this.querySelector("#show_normal").addEventListener("change", event => this._update("show_normal", event.target.checked));
     this.querySelector("#show_values").addEventListener("change", event => this._update("show_values", event.target.checked));
   }
-
-  _update(key, value) {
-    this._config[key] = value;
-    this.dispatchEvent(new CustomEvent("config-changed", { bubbles: true, composed: true, detail: { config: this._config } }));
-  }
+  _update(key, value) { this._config[key] = value; this.dispatchEvent(new CustomEvent("config-changed", { bubbles: true, composed: true, detail: { config: this._config } })); }
 }
 
 if (!customElements.get("battery-monitor-card")) customElements.define("battery-monitor-card", BatteryMonitorCard);
