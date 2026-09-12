@@ -2,6 +2,8 @@ class BatteryMonitorCard extends HTMLElement {
   static getStubConfig() {
     return {
       entity: "sensor.ha_battery_status_monitor_gesamt",
+      show_header: true,
+      show_summary: true,
       default_view: "summary",
       summary_limit: 2,
       summary_categories: ["normal", "weak", "critical", "unavailable"],
@@ -55,7 +57,12 @@ class BatteryMonitorCard extends HTMLElement {
           schema: [
             {
               name: "default_view",
-              selector: { select: { options: viewOptions, mode: "dropdown" } },
+              selector: {
+                select: {
+                  options: viewOptions,
+                  mode: "dropdown",
+                },
+              },
             },
             {
               name: "summary_limit",
@@ -101,13 +108,13 @@ class BatteryMonitorCard extends HTMLElement {
       })[schema.name],
       computeHelper: (schema) => {
         if (schema.name === "default_view") {
-          return "Legt fest, welche Ansicht direkt unter den Statuszahlen geöffnet ist.";
+          return "Legt fest, welche Ansicht beim Öffnen der Karte aktiv ist.";
         }
         if (schema.name === "summary_limit") {
           return "In der Zusammenfassung werden pro ausgewählter Kategorie nur die ersten 2 oder 3 Geräte angezeigt.";
         }
         if (schema.name === "summary_categories") {
-          return "Wähle alle Kategorien oder nur die Kategorien, die in der Zusammenfassung erscheinen sollen.";
+          return "Wähle die Kategorien aus, die in der Zusammenfassung erscheinen sollen.";
         }
         return undefined;
       },
@@ -129,39 +136,39 @@ class BatteryMonitorCard extends HTMLElement {
       ...config,
     };
 
-    this._activeView = this._config.default_view;
-    this._lastRenderState = null;
-    this._lastRenderConfig = null;
-    this._render();
+    this._activeView = this._normalizeView(this._config.default_view);
+    this._lastRenderSignature = null;
+    this._render(true);
   }
 
   set hass(hass) {
     this._hass = hass;
 
-    // Home Assistant assigns a new hass object very frequently. Rebuilding
-    // the complete DOM on every hass update caused visible flicker and made
-    // clicks unreliable. Only render when this card's entity actually changed.
-    const state = hass?.states?.[this._config?.entity];
-    if (!state) {
-      this._render();
-      return;
-    }
+    if (!this._config) return;
 
-    const renderState = `${state.state}|${state.last_changed}|${state.last_updated}`;
-    if (renderState !== this._lastRenderState) {
-      this._render();
-    }
+    const state = hass?.states?.[this._config.entity];
+    const signature = state
+      ? JSON.stringify([
+          state.state,
+          state.attributes?.counts || {},
+          state.attributes?.devices || [],
+        ])
+      : "missing";
+
+    // Home Assistant sends a new hass object very frequently. Do not rebuild
+    // the complete card unless the data used by this card actually changed.
+    if (signature === this._lastRenderSignature) return;
+
+    this._render(true);
   }
 
   getCardSize() {
-    const view = this._activeView || this._config?.default_view || "summary";
-    return view === "summary" ? 5 : 4;
+    return this._activeView === "summary" ? 5 : 4;
   }
 
   getGridOptions() {
-    const view = this._activeView || this._config?.default_view || "summary";
     return {
-      rows: view === "summary" ? 5 : 4,
+      rows: this._activeView === "summary" ? 5 : 4,
       columns: 6,
       min_rows: 3,
       max_rows: 10,
@@ -177,22 +184,36 @@ class BatteryMonitorCard extends HTMLElement {
     ];
   }
 
-  _render() {
+  _normalizeView(view) {
+    const allowed = new Set(["summary", "normal", "weak", "critical", "unavailable"]);
+    return allowed.has(view) ? view : "summary";
+  }
+
+  _render(force = false) {
     if (!this._hass || !this._config) return;
 
     const state = this._hass.states[this._config.entity];
     if (!state) {
       this.innerHTML = '<ha-card><div class="content">HA Battery Status Monitor Entity nicht gefunden.</div></ha-card>';
-      this._lastRenderState = null;
+      this._lastRenderSignature = "missing";
       return;
     }
+
+    const signature = JSON.stringify([
+      state.state,
+      state.attributes?.counts || {},
+      state.attributes?.devices || [],
+    ]);
+
+    if (!force && signature === this._lastRenderSignature) return;
+    this._lastRenderSignature = signature;
 
     const counts = state.attributes?.counts || {};
     const devices = Array.isArray(state.attributes?.devices)
       ? state.attributes.devices
       : [];
     const defs = this._defs();
-    const activeView = this._activeView || this._config.default_view || "summary";
+    const activeView = this._normalizeView(this._activeView);
 
     const countsHtml = this._config.show_summary
       ? `<div class="counts">${defs
@@ -207,7 +228,7 @@ class BatteryMonitorCard extends HTMLElement {
         <style>${this._styles()}</style>
         <div class="content">
           ${this._config.show_header
-            ? '<div class="header"><div class="title"><ha-icon icon="mdi:battery" class="title-icon"></ha-icon><span>HA Battery Status Monitor</span></div></div>'
+            ? '<div class="header"><div class="title"><ha-icon class="title-icon" icon="mdi:battery"></ha-icon><span>HA Battery Status Monitor</span></div></div>'
             : ""}
           ${countsHtml}
           ${contentHtml}
@@ -215,7 +236,6 @@ class BatteryMonitorCard extends HTMLElement {
       </ha-card>
     `;
 
-    this._lastRenderState = `${state.state}|${state.last_changed}|${state.last_updated}`;
     this._bindEvents();
   }
 
@@ -230,7 +250,7 @@ class BatteryMonitorCard extends HTMLElement {
         aria-label="${status.label}: ${value}"
         aria-pressed="${activeView === status.key}"
       >
-        <ha-icon icon="${status.icon}" class="count-icon"></ha-icon>
+        <ha-icon class="count-icon" icon="${status.icon}"></ha-icon>
         <strong>${value}</strong>
         <span class="count-label">${status.label}</span>
       </button>
@@ -270,7 +290,7 @@ class BatteryMonitorCard extends HTMLElement {
     return `
       <div class="detail-toolbar">
         <button class="back-button" type="button" data-summary="true">
-          <ha-icon icon="mdi:arrow-left" class="back-icon"></ha-icon>
+          <ha-icon icon="mdi:arrow-left"></ha-icon>
           <span>Zur Zusammenfassung</span>
         </button>
       </div>
@@ -279,25 +299,24 @@ class BatteryMonitorCard extends HTMLElement {
   }
 
   _section(status, devices, limit) {
-    let items = devices.filter((item) => item.status === status.key);
-    if (limit) items = items.slice(0, limit);
-    if (!items.length) return "";
+    const allItems = devices.filter((item) => item.status === status.key);
+    if (!allItems.length) return "";
 
-    const total = devices.filter((item) => item.status === status.key).length;
-    const limited = limit && total > items.length;
+    const items = limit ? allItems.slice(0, limit) : allItems;
+    const limited = limit && allItems.length > items.length;
 
     return `
       <section class="section ${status.key}">
         <div class="section-title">
-          <ha-icon icon="${status.icon}" class="section-icon"></ha-icon>
+          <ha-icon class="section-icon" icon="${status.icon}"></ha-icon>
           <span>${status.label}</span>
-          <span class="section-count">${total}</span>
+          <span class="section-count">${allItems.length}</span>
         </div>
         <div class="device-list">
           ${items.map((item) => this._row(item)).join("")}
         </div>
         ${limited
-          ? `<div class="more-hint">Weitere ${total - items.length} Geräte – ${status.label} oben auswählen.</div>`
+          ? `<div class="more-hint">Weitere ${allItems.length - items.length} Geräte – ${status.label} oben auswählen.</div>`
           : ""}
       </section>
     `;
@@ -323,9 +342,12 @@ class BatteryMonitorCard extends HTMLElement {
       button.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
+
         const status = button.dataset.status;
+        if (!status) return;
+
         this._activeView = this._activeView === status ? "summary" : status;
-        this._render();
+        this._render(true);
       });
     });
 
@@ -334,14 +356,12 @@ class BatteryMonitorCard extends HTMLElement {
         event.preventDefault();
         event.stopPropagation();
         this._activeView = "summary";
-        this._render();
+        this._render(true);
       });
     });
 
     this.querySelectorAll(".device-row[data-entity]").forEach((row) => {
-      const open = (event) => {
-        event?.preventDefault();
-        event?.stopPropagation();
+      const open = () => {
         this.dispatchEvent(
           new CustomEvent("hass-more-info", {
             bubbles: true,
@@ -351,11 +371,16 @@ class BatteryMonitorCard extends HTMLElement {
         );
       };
 
-      row.addEventListener("click", open);
+      row.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        open();
+      });
+
       row.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          open(event);
+          open();
         }
       });
     });
@@ -376,28 +401,31 @@ class BatteryMonitorCard extends HTMLElement {
       .content{padding:16px}
       .header{display:flex;align-items:center;margin-bottom:14px}
       .title{display:flex;align-items:center;gap:10px;font-size:1.15rem;font-weight:600}
+      ha-icon{--mdc-icon-size:20px}
       .title-icon{color:var(--primary-color);--mdc-icon-size:21px}
 
       .counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:14px}
-      .battery-status-count{position:relative;appearance:none;border:0;font:inherit;text-align:left;color:var(--primary-text-color);display:grid;grid-template-columns:auto 1fr;column-gap:7px;align-items:center;padding:10px;border-radius:12px;background:var(--secondary-background-color);min-width:0;box-sizing:border-box;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+      .battery-status-count{appearance:none;border:0;font:inherit;text-align:left;color:var(--primary-text-color);display:grid;grid-template-columns:auto 1fr;column-gap:7px;align-items:center;padding:10px;border-radius:12px;background:var(--secondary-background-color);min-width:0;box-sizing:border-box;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;transition:background .12s ease,box-shadow .12s ease}
       .battery-status-count:hover{background:var(--primary-background-color)}
-      .battery-status-count:active{background:var(--secondary-background-color)}
+      .battery-status-count:active{opacity:.88}
       .battery-status-count.active{box-shadow:inset 0 0 0 2px var(--primary-color);background:var(--primary-background-color)}
       .battery-status-count:focus-visible{outline:2px solid var(--primary-color);outline-offset:2px}
       .battery-status-count strong{font-size:1.2rem;line-height:1}
       .count-label{grid-column:1/-1;margin-top:4px;font-size:.72rem;color:var(--secondary-text-color);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .count-icon,.section-icon{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;--mdc-icon-size:22px}
+      .count-icon,.section-icon{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px}
       .critical .count-icon,.critical .device-value,.critical .section-icon{color:var(--error-color)}
       .weak .count-icon,.weak .device-value,.weak .section-icon{color:var(--warning-color)}
       .unavailable .count-icon,.unavailable .device-value,.unavailable .section-icon{color:var(--secondary-text-color)}
+      .normal .count-icon,.normal .section-icon{color:var(--primary-color)}
 
       .view-label{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:4px 0 8px;padding:0 10px}
       .view-label-title{font-weight:600}
       .view-label-hint{font-size:.78rem;color:var(--secondary-text-color)}
-      .detail-toolbar{display:flex;justify-content:flex-start;margin:2px 0 12px}
-      .back-button{display:inline-flex;align-items:center;gap:9px;border:0;border-radius:10px;padding:10px 14px;min-height:42px;background:var(--secondary-background-color);color:var(--primary-color);font:inherit;font-size:.95rem;font-weight:500;cursor:pointer}
+      .detail-toolbar{display:flex;justify-content:flex-start;margin:2px 0 12px;padding-left:4px}
+      .back-button{display:inline-flex;align-items:center;gap:9px;border:0;border-radius:10px;padding:10px 13px;background:var(--secondary-background-color);color:var(--primary-color);font:inherit;font-size:.95rem;font-weight:600;cursor:pointer;min-height:42px}
       .back-button:hover{background:var(--primary-background-color)}
-      .back-icon{--mdc-icon-size:21px}
+      .back-button:focus-visible{outline:2px solid var(--primary-color);outline-offset:2px}
+      .back-button ha-icon{--mdc-icon-size:21px}
 
       .sections{display:flex;flex-direction:column;gap:4px}
       .section{margin-top:8px}
@@ -420,7 +448,6 @@ class BatteryMonitorCard extends HTMLElement {
         .view-label{padding:0 6px}
         .device-list{padding-left:6px}
         .section-title{padding-left:6px}
-        .back-button{padding:10px 13px;min-height:42px;font-size:.92rem}
       }
 
       @media(max-width:430px){
