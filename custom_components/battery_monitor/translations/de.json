@@ -1,0 +1,28 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Battery Monitor",
+        "description": "Wähle die Geräte aus, deren Batterie überwacht werden soll.",
+        "data": {
+          "device_ids": "Geräte",
+          "warning_threshold": "Warnschwelle (%)",
+          "critical_threshold": "Kritische Schwelle (%)"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Battery Monitor Einstellungen",
+        "description": "Geräte und Schwellenwerte ändern.",
+        "data": {
+          "device_ids": "Geräte",
+          "warning_threshold": "Warnschwelle (%)",
+          "critical_threshold": "Kritische Schwelle (%)"
+        }
+      }
+    }
+  }
+}
