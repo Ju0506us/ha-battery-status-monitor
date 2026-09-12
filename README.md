@@ -60,7 +60,7 @@ Example:
 
 ```yaml
 type: custom:battery-monitor-card
-entity: sensor.battery_monitor_gesamt
+entity: sensor.ha_battery_status_monitor_gesamt
 show_normal: false
 show_weak: true
 show_critical: true
@@ -79,13 +79,13 @@ The repository is private while V1 is being tested.
 Copy the following directory to your Home Assistant configuration directory:
 
 ```text
-/config/custom_components/battery_monitor/
+/config/custom_components/ha_battery_status_monitor/
 ```
 
 The directory must contain the integration files from:
 
 ```text
-custom_components/battery_monitor/
+custom_components/ha_battery_status_monitor/
 ```
 
 Restart Home Assistant afterwards and add **HA Battery Status Monitor** through:
@@ -117,7 +117,7 @@ The final HACS distribution layout will be defined before the first public relea
 ## Repository structure
 
 ```text
-custom_components/battery_monitor/
+custom_components/ha_battery_status_monitor/
 ├── __init__.py
 ├── config_flow.py
 ├── const.py
