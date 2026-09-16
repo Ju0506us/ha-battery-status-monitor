@@ -4,9 +4,9 @@
   "codeowners": ["@Ju0506us"],
   "config_flow": true,
   "documentation": "https://github.com/Ju0506us/ha-battery-status-monitor",
-  "integration_type": "helper",
+  "integration_type": "service",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/Ju0506us/ha-battery-status-monitor/issues",
   "requirements": [],
-  "version": "1.0.0"
+  "version": "1.0.2"
 }
