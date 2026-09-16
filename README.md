@@ -3,10 +3,10 @@
 [![Open your Home Assistant instance and open this repository in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Ju0506us&repository=ha-battery-status-monitor&category=integration)
 
 🇩🇪 **Deutsch**  
-Eine lokale Home-Assistant-Integration zur Überwachung der Batteriestände ausgewählter Geräte – inklusive einer modernen, responsiven Lovelace-Karte.
+Eine lokale Home-Assistant-Integration zur Überwachung der Batteriestände ausgewählter Geräte.
 
 🇬🇧 **English**  
-A local Home Assistant integration for monitoring the battery status of selected devices – including a modern, responsive Lovelace card.
+A local Home Assistant integration for monitoring the battery status of selected devices.
 
 > **V1:** Die erste V1-Version wurde auf einer realen Home-Assistant-Installation getestet und die vorgesehenen V1-Funktionen wurden erfolgreich geprüft.  
 > **V1:** The first V1 version has been tested on a real Home Assistant installation and the intended V1 functionality has passed testing.
@@ -75,54 +75,6 @@ With the default thresholds:
 
 The warning and critical thresholds can be adjusted in the configuration.
 
-## Lovelace Card · Lovelace-Karte
-
-🇩🇪 **Deutsch**
-
-Das Projekt enthält eine passende Lovelace-Karte unter `www/battery-monitor-card.js`. Sie verwendet Home-Assistant-Theme-Variablen und passt sich an Light Mode, Dark Mode und eigene Themes an. Die Karte ist für Desktop, Smartphone und die Companion App ausgelegt.
-
-Die vier Statusbereiche sind anklickbar. Ein Klick zeigt die vollständige Liste des jeweiligen Status direkt in der Karte. Ein erneuter Klick oder die Zurück-Schaltfläche führt zur Zusammenfassung zurück.
-
-Der grafische Karten-Editor unterstützt:
-
-- Startansicht: Zusammenfassung, Normal, Schwach, Kritisch oder Nicht erreichbar
-- 2 oder 3 Geräte je Kategorie in der Zusammenfassung
-- alle oder ausgewählte Kategorien in der Zusammenfassung
-
-🇬🇧 **English**
-
-The project includes a matching Lovelace card at `www/battery-monitor-card.js`. It uses Home Assistant theme variables and adapts to light mode, dark mode and custom themes. The card is designed for desktop, mobile and the Companion App.
-
-The four status categories are clickable. Clicking a status displays the complete list for that category directly in the card. Clicking it again or using the back button returns to the summary.
-
-The graphical card editor supports:
-
-- Default view: Summary, Normal, Weak, Critical or Not reachable
-- 2 or 3 devices per category in Summary mode
-- All or selected categories in Summary mode
-
-### Example · Beispiel
-
-```yaml
-type: custom:battery-monitor-card
-entity: sensor.ha_battery_status_monitor_gesamt
-show_header: true
-show_summary: true
-default_view: summary
-summary_limit: 2
-summary_categories:
-  - normal
-  - weak
-  - critical
-  - unavailable
-```
-
-The card is registered as a JavaScript module:
-
-```text
-/local/battery-monitor-card.js
-```
-
 ## Installation · Installation
 
 ### HACS
@@ -131,15 +83,21 @@ The card is registered as a JavaScript module:
 
 🇩🇪 **Deutsch**
 
-Nach der öffentlichen Veröffentlichung kann die Integration über HACS installiert werden. Der Button oben öffnet das Repository direkt in HACS bzw. in der eigenen Home-Assistant-Instanz.
+Installiere **HA Battery Status Monitor** über HACS unter **Integrationen**. Der Button oben öffnet das Repository direkt in HACS bzw. in deiner Home-Assistant-Instanz.
 
-**Hinweis:** Dieses Repository ist ein HACS-Repository für die Integration. Die Lovelace-Karte ist derzeit als separate Ressource bereitzustellen; sie wird nicht automatisch als Dashboard-Element installiert.
+Die passende Lovelace Card ist inzwischen ein eigenes HACS-Frontend-Projekt:
+
+**HA Battery Status Monitor Card**  
+https://github.com/Ju0506us/ha-battery-status-monitor-card
 
 🇬🇧 **English**
 
-After the public release, the integration can be installed through HACS. The button above opens the repository directly in HACS or in your own Home Assistant instance.
+Install **HA Battery Status Monitor** through HACS under **Integrations**. The button above opens the repository directly in HACS or in your Home Assistant instance.
 
-**Note:** This repository is a HACS repository for the integration. The Lovelace card currently needs to be added as a separate resource; it is not automatically installed as a dashboard element.
+The matching Lovelace card is now maintained as a separate HACS frontend project:
+
+**HA Battery Status Monitor Card**  
+https://github.com/Ju0506us/ha-battery-status-monitor-card
 
 ### Manual installation · Manuelle Installation
 
@@ -151,13 +109,7 @@ Kopiere `custom_components/ha_battery_status_monitor/` nach:
 /config/custom_components/ha_battery_status_monitor/
 ```
 
-Kopiere die Karte nach:
-
-```text
-/config/www/battery-monitor-card.js
-```
-
-Registriere die Karte als JavaScript-Modul unter `/local/battery-monitor-card.js` und starte Home Assistant anschließend neu.
+Starte Home Assistant anschließend neu.
 
 🇬🇧 **English**
 
@@ -167,13 +119,7 @@ Copy `custom_components/ha_battery_status_monitor/` to:
 /config/custom_components/ha_battery_status_monitor/
 ```
 
-Copy the card to:
-
-```text
-/config/www/battery-monitor-card.js
-```
-
-Register the card as a JavaScript module at `/local/battery-monitor-card.js` and restart Home Assistant afterwards.
+Restart Home Assistant afterwards.
 
 ## Sensors · Sensoren
 
@@ -205,13 +151,13 @@ Each configuration creates five count sensors:
 
 🇩🇪 **Deutsch**
 
-Die V1 wurde auf einer realen Home-Assistant-Installation getestet. Erfolgreich geprüft wurden unter anderem Statusklassifizierung, Schwellenwerte, binäre Sensoren, Geräteauswahl, Konfigurationsänderungen, Karten-Navigation, Summary-Modus, grafischer Editor, Light/Dark Mode, Desktop, Smartphone, Companion App sowie Reload und Neustart.
+Die V1 wurde auf einer realen Home-Assistant-Installation getestet. Erfolgreich geprüft wurden unter anderem Statusklassifizierung, Schwellenwerte, binäre Sensoren, Geräteauswahl, Konfigurationsänderungen sowie Reload und Neustart.
 
 Ein reales Gerät mit mehreren Batterie-Entitäten konnte bisher nicht praktisch getestet werden, die Logik ist dafür vorgesehen.
 
 🇬🇧 **English**
 
-V1 has been tested on a real Home Assistant installation. Testing successfully covered status classification, thresholds, binary sensors, device selection, configuration changes, card navigation, Summary mode, graphical editor, light/dark mode, desktop, mobile, Companion App, reload and restart behavior.
+V1 has been tested on a real Home Assistant installation. Testing successfully covered status classification, thresholds, binary sensors, device selection, configuration changes, reload and restart behavior.
 
 A real device with multiple battery entities has not yet been practically tested, although the logic is designed to support it.
 
@@ -226,11 +172,11 @@ custom_components/ha_battery_status_monitor/
 ├── manifest.json
 ├── sensor.py
 ├── strings.json
-└── translations/
-    └── de.json
-
-www/
-└── battery-monitor-card.js
+├── translations/
+│   └── de.json
+└── brand/
+    ├── icon.png
+    └── icon@2x.png
 ```
 
 ## Development · Entwicklung
@@ -239,17 +185,15 @@ www/
 
 Das Projekt wird eigenständig entwickelt und schrittweise erweitert. Fehlerberichte, Verbesserungsvorschläge und neue Ideen sind über GitHub Issues willkommen.
 
-Für zukünftige Versionen sind unter anderem Benachrichtigungen, Recovery-/Statuswechsel, Verlauf, Batteriealter, letzte Aktualisierung und weitere Automatisierungsfunktionen geplant bzw. denkbar.
-
 🇬🇧 **English**
 
 The project is developed independently and expanded incrementally. Bug reports, improvement suggestions and new ideas are welcome through GitHub Issues.
 
-Future versions may include notifications, recovery/status changes, history, battery age, last-update information and additional automation features.
-
 ## CI and HACS · CI und HACS
 
-The repository uses GitHub Actions to validate the Home Assistant integration with **Hassfest** and **HACS validation** on pushes and pull requests.
+Das Repository verwendet GitHub Actions zur Validierung mit **Hassfest** und **HACS validation**.
+
+The repository uses GitHub Actions with **Hassfest** and **HACS validation**.
 
 ## AI-assisted development · KI-Unterstützung
 
@@ -271,6 +215,8 @@ This project is released under the **MIT License**. See `LICENSE`.
 
 Developed with care for Home Assistant and local smart-home infrastructure.
 
-## Version 1.0.1
+## Version 1.0.2
 
-- Updated documentation for HACS Default Store submission.
+- Changed the Home Assistant integration type from `helper` to `service`.
+- Moved the Lovelace card into the dedicated `ha-battery-status-monitor-card` repository.
+- Updated documentation for the separate HACS frontend project.
