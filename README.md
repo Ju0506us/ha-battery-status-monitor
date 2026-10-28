@@ -85,19 +85,13 @@ The warning and critical thresholds can be adjusted in the configuration.
 
 Installiere **HA Battery Status Monitor** über HACS unter **Integrationen**. Der Button oben öffnet das Repository direkt in HACS bzw. in deiner Home-Assistant-Instanz.
 
-Die passende Lovelace Card ist inzwischen ein eigenes HACS-Frontend-Projekt:
-
-**HA Battery Status Monitor Card**  
-https://github.com/Ju0506us/ha-battery-status-monitor-card
+Die passende Lovelace Card ist in der Integration enthalten und wird automatisch eingerichtet (siehe [Lovelace Card](#lovelace-card)).
 
 🇬🇧 **English**
 
 Install **HA Battery Status Monitor** through HACS under **Integrations**. The button above opens the repository directly in HACS or in your Home Assistant instance.
 
-The matching Lovelace card is now maintained as a separate HACS frontend project:
-
-**HA Battery Status Monitor Card**  
-https://github.com/Ju0506us/ha-battery-status-monitor-card
+The matching Lovelace card is bundled with the integration and set up automatically (see [Lovelace Card](#lovelace-card)).
 
 ### Manual installation · Manuelle Installation
 
@@ -147,6 +141,34 @@ Each configuration creates five count sensors:
 | `sensor.ha_battery_status_monitor_kritisch` | Devices with a critical battery status |
 | `sensor.ha_battery_status_monitor_nicht_erreichbar` | Devices that are not reachable |
 
+## Lovelace Card
+
+🇩🇪 **Deutsch**
+
+Die Integration bringt die Card `battery-monitor-card` mit. Sie wird von der Integration selbst unter `/ha_battery_status_monitor/battery-monitor-card.js` bereitgestellt und beim Start von Home Assistant automatisch als Dashboard-Ressource registriert – es muss nichts nach `/config/www` kopiert und keine Ressource manuell angelegt werden.
+
+Card hinzufügen: Dashboard bearbeiten → **Karte hinzufügen** → **HA Battery Status Monitor Card**, oder per YAML:
+
+```yaml
+type: custom:battery-monitor-card
+entity: sensor.ha_battery_status_monitor_gesamt
+```
+
+> Wer früher die separate Card `ha-battery-status-monitor-card` über HACS installiert hat, sollte sie entfernen (inkl. der alten Dashboard-Ressource), damit die Card nicht doppelt geladen wird.
+
+🇬🇧 **English**
+
+The integration ships the `battery-monitor-card`. It is served by the integration itself at `/ha_battery_status_monitor/battery-monitor-card.js` and registered automatically as a dashboard resource when Home Assistant starts – nothing needs to be copied to `/config/www` and no resource needs to be added manually.
+
+Add the card: edit dashboard → **Add card** → **HA Battery Status Monitor Card**, or via YAML:
+
+```yaml
+type: custom:battery-monitor-card
+entity: sensor.ha_battery_status_monitor_gesamt
+```
+
+> If you previously installed the separate `ha-battery-status-monitor-card` through HACS, remove it (including its old dashboard resource) so the card isn't loaded twice.
+
 ## V1 testing · V1-Tests
 
 🇩🇪 **Deutsch**
@@ -174,6 +196,8 @@ custom_components/ha_battery_status_monitor/
 ├── strings.json
 ├── translations/
 │   └── de.json
+├── www/
+│   └── battery-monitor-card.js
 └── brand/
     ├── icon.png
     └── icon@2x.png
@@ -220,3 +244,9 @@ Developed with care for Home Assistant and local smart-home infrastructure.
 - Changed the Home Assistant integration type from `helper` to `service`.
 - Moved the Lovelace card into the dedicated `ha-battery-status-monitor-card` repository.
 - Updated documentation for the separate HACS frontend project.
+
+## Version 1.1.0
+
+- Bundled the Lovelace card in the integration (`www/battery-monitor-card.js`).
+- The card is served from the integration's own static path and registered automatically as a dashboard resource.
+- The separate `ha-battery-status-monitor-card` repository is no longer needed.
