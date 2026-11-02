@@ -195,7 +195,8 @@ custom_components/ha_battery_status_monitor/
 ├── sensor.py
 ├── strings.json
 ├── translations/
-│   └── de.json
+│   ├── de.json
+│   └── en.json
 ├── www/
 │   └── battery-monitor-card.js
 └── brand/
@@ -250,3 +251,8 @@ Developed with care for Home Assistant and local smart-home infrastructure.
 - Bundled the Lovelace card in the integration (`www/battery-monitor-card.js`).
 - The card is served from the integration's own static path and registered automatically as a dashboard resource.
 - The separate `ha-battery-status-monitor-card` repository is no longer needed.
+
+## Version 1.1.1
+
+- Added `translations/en.json` so the config flow has English texts and a fallback for all languages without their own translation.
+- The card now renders status counts only as numbers (hardening against unexpected attribute values).

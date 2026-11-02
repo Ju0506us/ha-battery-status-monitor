@@ -1,0 +1,54 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HA Battery Status Monitor",
+        "description": "Select the devices whose battery status should be monitored.",
+        "data": {
+          "device_ids": "Battery devices"
+        },
+        "data_description": {
+          "device_ids": "Only devices with at least one supported battery entity are shown. You can select multiple devices."
+        }
+      },
+      "thresholds": {
+        "title": "Battery thresholds",
+        "description": "Adjust the warning and critical thresholds. The current value is shown next to each slider.",
+        "data": {
+          "warning_threshold": "Warning threshold",
+          "critical_threshold": "Critical threshold"
+        }
+      }
+    },
+    "error": {
+      "invalid_thresholds": "The critical threshold must be lower than the warning threshold.",
+      "no_devices": "Select at least one battery device."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "HA Battery Status Monitor",
+        "description": "Change the devices whose battery status should be monitored.",
+        "data": {
+          "device_ids": "Battery devices"
+        },
+        "data_description": {
+          "device_ids": "Only devices with at least one supported battery entity are shown."
+        }
+      },
+      "thresholds": {
+        "title": "Battery thresholds",
+        "description": "Adjust the warning and critical thresholds. The current value is shown next to each slider.",
+        "data": {
+          "warning_threshold": "Warning threshold",
+          "critical_threshold": "Critical threshold"
+        }
+      }
+    },
+    "error": {
+      "invalid_thresholds": "The critical threshold must be lower than the warning threshold.",
+      "no_devices": "Select at least one battery device."
+    }
+  }
+}

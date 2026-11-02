@@ -242,6 +242,7 @@ class BatteryMonitorCard extends HTMLElement {
   }
 
   _count(status, value, activeView) {
+    value = Number(value) || 0;
     const active = activeView === status.key ? " active" : "";
 
     return `
